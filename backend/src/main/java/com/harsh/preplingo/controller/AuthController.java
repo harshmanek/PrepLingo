@@ -4,19 +4,29 @@ import com.harsh.preplingo.exceptions.InvalidTokenException;
 import com.harsh.preplingo.models.AuthRequest;
 import com.harsh.preplingo.models.RegisterRequest;
 import com.harsh.preplingo.models.TokenResponse;
+import com.harsh.preplingo.models.User;
+import com.harsh.preplingo.repository.UserRepository;
 import com.harsh.preplingo.services.AuthService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.HashMap;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
+@CrossOrigin(origins = "http://localhost:5173", allowedHeaders = "*", allowCredentials = "true" ,methods = {RequestMethod.GET, RequestMethod.POST, RequestMethod.PUT, RequestMethod.DELETE, RequestMethod.OPTIONS})
 public class AuthController {
     private final AuthService authService;
-
-    public AuthController(AuthService authService) {
+    private final UserRepository userRepository;
+    public AuthController(AuthService authService , UserRepository userRepository) {
         this.authService = authService;
+        this.userRepository = userRepository;
     }
 
     @PostMapping("/authenticate")
@@ -43,8 +53,32 @@ public class AuthController {
                 .body(e.getMessage());
     }
     @PostMapping("/register")
-    public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
-        return ResponseEntity.ok(authService.register(request));
+    public ResponseEntity<?> register(@RequestBody RegisterRequest request) {
+        try {
+            String token = authService.register(request);
+            Map<String, String> response = new HashMap<>();
+            response.put("token", token);
+            response.put("message", "Registration successful");
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            Map<String, String> error = new HashMap<>();
+            error.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
+        }
     }
+    @GetMapping("/streak")
+    public ResponseEntity<Map<String, Object>> getStreakInfo() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
 
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        Map<String, Object> response = new HashMap<>();
+        response.put("streakCount", user.getStreakCount());
+        response.put("lastStreakDate", user.getLastStreakDate());
+        response.put("maintainedToday", user.isMaintainedTodayStreak());
+
+        return ResponseEntity.ok(response);
+    }
 }
