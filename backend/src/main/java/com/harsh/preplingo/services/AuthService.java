@@ -1,10 +1,7 @@
 package com.harsh.preplingo.services;
 
 import com.harsh.preplingo.exceptions.InvalidTokenException;
-import com.harsh.preplingo.models.AuthRequest;
-import com.harsh.preplingo.models.RegisterRequest;
-import com.harsh.preplingo.models.TokenResponse;
-import com.harsh.preplingo.models.User;
+import com.harsh.preplingo.models.*;
 import com.harsh.preplingo.repository.UserRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -31,7 +28,7 @@ public class AuthService {
         this.authenticationManager = authenticationManager;
     }
 
-    public TokenResponse authenticate(AuthRequest request) {
+    public AuthResponse authenticate(AuthRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -44,7 +41,7 @@ public class AuthService {
 
             String accessToken = jwtService.generateAccessToken(user);
             String refreshToken = jwtService.generateRefreshToken(user);
-            return new TokenResponse(accessToken, refreshToken);
+            return new AuthResponse(accessToken, refreshToken,user);
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username or password");
         }

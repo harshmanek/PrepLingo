@@ -1,12 +1,10 @@
 package com.harsh.preplingo.controller;
 
 import com.harsh.preplingo.exceptions.InvalidTokenException;
-import com.harsh.preplingo.models.AuthRequest;
-import com.harsh.preplingo.models.RegisterRequest;
-import com.harsh.preplingo.models.TokenResponse;
-import com.harsh.preplingo.models.User;
+import com.harsh.preplingo.models.*;
 import com.harsh.preplingo.repository.UserRepository;
 import com.harsh.preplingo.services.AuthService;
+import com.harsh.preplingo.services.JwtService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
@@ -24,20 +22,31 @@ import java.util.Map;
 public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
-    public AuthController(AuthService authService , UserRepository userRepository) {
+    private final JwtService jwtService;
+    public AuthController(AuthService authService , UserRepository userRepository, JwtService jwtService) {
         this.authService = authService;
         this.userRepository = userRepository;
+        this.jwtService = jwtService;
     }
 
     @PostMapping("/authenticate")
-    public ResponseEntity<TokenResponse> authenticate(@RequestBody AuthRequest request) {
+    public ResponseEntity<AuthResponse> authenticate(@RequestBody AuthRequest request) {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<TokenResponse> refreshToken(@RequestHeader("Authorization") String refreshToken) {
+    public ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String refreshToken) {
         if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
-            return ResponseEntity.ok(authService.refreshToken(refreshToken.substring(7)));
+            User user = userRepository.findByUsername(
+                    jwtService.extractUsername(refreshToken.substring(7))
+            ).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            TokenResponse tokens = authService.refreshToken(refreshToken.substring(7));
+            return ResponseEntity.ok(new AuthResponse(
+                    tokens.getAccessToken(),
+                    tokens.getRefreshToken(),
+                    user
+            ));
         }
         return ResponseEntity.badRequest().build();
     }
