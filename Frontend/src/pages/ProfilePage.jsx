@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useContext, useState, useEffect } from "react"
-import { AuthContext } from "../contexts/AuthContext"
-import { ProgressContext } from "../contexts/ProgressContext"
-import Navbar from "../components/Navbar"
-import LoadingSpinner from "../components/LoadingSpinner"
-import "./ProfilePage.css"
+import { useContext, useState, useEffect } from "react";
+import { AuthContext } from "../contexts/AuthContext";
+import { ProgressContext } from "../contexts/ProgressContext";
+import Navbar from "../components/Navbar";
+import LoadingSpinner from "../components/LoadingSpinner";
+import "./ProfilePage.css";
 
 const ProfilePage = () => {
-  const { currentUser, streakInfo, fetchStreakInfo } = useContext(AuthContext)
-  const { userProgress, fetchQuizStats } = useContext(ProgressContext)
-  const [isEditing, setIsEditing] = useState(false)
-  const [username, setUsername] = useState("")
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState(null)
+  const { currentUser, streakInfo, fetchStreakInfo } = useContext(AuthContext);
+  const { userProgress, fetchQuizStats } = useContext(ProgressContext);
+  const [isEditing, setIsEditing] = useState(false);
+  const [username, setUsername] = useState("");
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   // Default progress values to prevent undefined errors
   const defaultProgress = {
@@ -27,77 +27,87 @@ const ProfilePage = () => {
       averageScore: 0,
       bestScore: 0,
     },
-  }
+  };
 
   // Set username when currentUser is available
-  useEffect(() => {
-    if (currentUser?.username) {
-      setUsername(currentUser.username)
-    }
-  }, [currentUser])
-
   // Improve the data fetching to handle errors better
   useEffect(() => {
     const fetchData = async () => {
-      if (!currentUser) {
-        setLoading(false)
-        return
-      }
-
-      setLoading(true)
-      setError(null)
+      setLoading(true);
+      setError(null);
 
       try {
-        // Fetch streak info and user progress in parallel
-        const promises = []
-
-        if (fetchStreakInfo) {
-          promises.push(
-            fetchStreakInfo().catch((err) => {
-              console.error("Error fetching streak info:", err)
-              return null
-            }),
-          )
+        if (!currentUser) {
+          setLoading(false);
+          return; // Exit early if no user, but don't throw error
         }
 
-        if (fetchQuizStats) {
-          promises.push(
-            fetchQuizStats().catch((err) => {
-              console.error("Error fetching quiz stats:", err)
-              return null
-            }),
-          )
+        const promises = [
+          fetchStreakInfo ? fetchStreakInfo() : Promise.resolve(null),
+          fetchQuizStats ? fetchQuizStats() : Promise.resolve(null),
+        ];
+
+        const results = await Promise.allSettled(promises);
+
+        // Check for any failed promises
+        const failedResults = results.filter(
+          (result) => result.status === "rejected"
+        );
+        if (failedResults.length > 0) {
+          console.error("Some requests failed:", failedResults);
+          // Log the specific errors
+          failedResults.forEach((result, index) => {
+            console.error(`API call ${index + 1} failed:`, result.reason);
+          });
+
+          // Only set error if all promises failed
+          if (failedResults.length === promises.length) {
+            throw new Error("Failed to load profile data");
+          }
         }
 
-        await Promise.allSettled(promises)
-      } catch (error) {
-        console.error("Error fetching profile data:", error)
-        setError("Failed to load profile data. Please try again later.")
+        // Process successful results
+        results.forEach((result, index) => {
+          if (result.status === "fulfilled" && result.value) {
+            if (index === 0 && result.value) {
+              // Handle streak info success
+              console.log("Streak info loaded successfully");
+            } else if (index === 1 && result.value) {
+              // Handle quiz stats success
+              console.log("Quiz stats loaded successfully");
+            }
+          }
+        });
+      } catch (err) {
+        console.error("Error fetching profile data:", err);
+        setError(
+          err.message || "Failed to load profile data. Please try again later."
+        );
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchData()
-  }, [currentUser, fetchStreakInfo, fetchQuizStats])
+    fetchData();
+  }, [currentUser, fetchStreakInfo, fetchQuizStats]);
 
   const handleSaveProfile = () => {
     // In a real app, save profile changes to the backend
-    setIsEditing(false)
-  }
+    setIsEditing(false);
+  };
 
   const formatDate = (dateString) => {
-    if (!dateString) return "N/A"
+    if (!dateString) return "N/A";
     try {
-      return new Date(dateString).toLocaleDateString()
+      return new Date(dateString).toLocaleDateString();
     } catch (e) {
-      console.error("Error formatting date:", e)
-      return "N/A"
+      console.error("Error formatting date:", e);
+      return "N/A";
     }
-  }
+  };
 
   // Use the defaultProgress as a fallback
-  const progress = userProgress || defaultProgress
+  const progress = userProgress || defaultProgress;
 
   if (loading) {
     return (
@@ -108,7 +118,7 @@ const ProfilePage = () => {
           <p>Loading your profile data...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -118,12 +128,15 @@ const ProfilePage = () => {
         <div className="error-state">
           <h2>Error Loading Profile</h2>
           <p>{error}</p>
-          <button className="primary-button" onClick={() => window.location.reload()}>
+          <button
+            className="primary-button"
+            onClick={() => window.location.reload()}
+          >
             Try Again
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   // Check if user is logged in
@@ -134,12 +147,15 @@ const ProfilePage = () => {
         <div className="error-state">
           <h2>Not Logged In</h2>
           <p>Please log in to view your profile.</p>
-          <button className="primary-button" onClick={() => (window.location.href = "/login")}>
+          <button
+            className="primary-button"
+            onClick={() => (window.location.href = "/login")}
+          >
             Go to Login
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -153,7 +169,9 @@ const ProfilePage = () => {
 
         <div className="profile-card">
           <div className="profile-avatar">
-            <div className="avatar-circle">{currentUser?.username?.charAt(0)?.toUpperCase() || "U"}</div>
+            <div className="avatar-circle">
+              {currentUser?.username?.charAt(0)?.toUpperCase() || "U"}
+            </div>
             <div className="level-badge">Level {progress.level}</div>
           </div>
 
@@ -162,14 +180,25 @@ const ProfilePage = () => {
               <div className="edit-form">
                 <div className="form-group">
                   <label htmlFor="username">Username</label>
-                  <input type="text" id="username" value={username} onChange={(e) => setUsername(e.target.value)} />
+                  <input
+                    type="text"
+                    id="username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                  />
                 </div>
 
                 <div className="form-actions">
-                  <button className="profile-button secondary" onClick={() => setIsEditing(false)}>
+                  <button
+                    className="profile-button secondary"
+                    onClick={() => setIsEditing(false)}
+                  >
                     Cancel
                   </button>
-                  <button className="profile-button primary" onClick={handleSaveProfile}>
+                  <button
+                    className="profile-button primary"
+                    onClick={handleSaveProfile}
+                  >
                     Save Changes
                   </button>
                 </div>
@@ -178,10 +207,16 @@ const ProfilePage = () => {
               <>
                 <div className="profile-info">
                   <h2>{currentUser?.username || "User"}</h2>
-                  <p>Member since {formatDate(currentUser?.createdAt || new Date())}</p>
+                  <p>
+                    Member since{" "}
+                    {formatDate(currentUser?.createdAt || new Date())}
+                  </p>
                 </div>
 
-                <button className="profile-button primary" onClick={() => setIsEditing(true)}>
+                <button
+                  className="profile-button primary"
+                  onClick={() => setIsEditing(true)}
+                >
                   Edit Profile
                 </button>
               </>
@@ -195,7 +230,9 @@ const ProfilePage = () => {
           <div className="stats-grid">
             <div className="stat-item">
               <div className="stat-icon">🔥</div>
-              <div className="stat-value">{streakInfo?.streakCount || progress.streak || 0}</div>
+              <div className="stat-value">
+                {streakInfo?.streakCount || progress.streak || 0}
+              </div>
               <div className="stat-label">Day Streak</div>
             </div>
 
@@ -207,13 +244,17 @@ const ProfilePage = () => {
 
             <div className="stat-item">
               <div className="stat-icon">📚</div>
-              <div className="stat-value">{progress.completedLessons?.length || 0}</div>
+              <div className="stat-value">
+                {progress.completedLessons?.length || 0}
+              </div>
               <div className="stat-label">Lessons Completed</div>
             </div>
 
             <div className="stat-item">
               <div className="stat-icon">📝</div>
-              <div className="stat-value">{progress.quizStats?.totalQuizzes || 0}</div>
+              <div className="stat-value">
+                {progress.quizStats?.totalQuizzes || 0}
+              </div>
               <div className="stat-label">Quizzes Completed</div>
             </div>
           </div>
@@ -221,25 +262,33 @@ const ProfilePage = () => {
           <div className="stats-grid mt-4">
             <div className="stat-item">
               <div className="stat-icon">📊</div>
-              <div className="stat-value">{progress.quizStats?.averageScore || 0}%</div>
+              <div className="stat-value">
+                {progress.quizStats?.averageScore || 0}%
+              </div>
               <div className="stat-label">Average Score</div>
             </div>
 
             <div className="stat-item">
               <div className="stat-icon">🏆</div>
-              <div className="stat-value">{progress.quizStats?.bestScore || 0}%</div>
+              <div className="stat-value">
+                {progress.quizStats?.bestScore || 0}%
+              </div>
               <div className="stat-label">Best Score</div>
             </div>
 
             <div className="stat-item">
               <div className="stat-icon">📅</div>
-              <div className="stat-value">{streakInfo?.maintainedToday ? "Yes" : "No"}</div>
+              <div className="stat-value">
+                {streakInfo?.maintainedToday ? "Yes" : "No"}
+              </div>
               <div className="stat-label">Today's Streak</div>
             </div>
 
             <div className="stat-item">
               <div className="stat-icon">📆</div>
-              <div className="stat-value">{formatDate(streakInfo?.lastStreakDate)}</div>
+              <div className="stat-value">
+                {formatDate(streakInfo?.lastStreakDate)}
+              </div>
               <div className="stat-label">Last Streak Date</div>
             </div>
           </div>
@@ -249,16 +298,17 @@ const ProfilePage = () => {
           <h2>How Streaks Work</h2>
           <div className="streak-explanation">
             <p>
-              <strong>🔥 Building Your Streak:</strong> Complete at least one quiz per day with a score of 50% or higher
-              to maintain your streak.
+              <strong>🔥 Building Your Streak:</strong> Complete at least one
+              quiz per day with a score of 50% or higher to maintain your
+              streak.
             </p>
             <p>
-              <strong>⏰ Daily Reset:</strong> Your "maintained today" status resets at midnight, giving you a fresh
-              opportunity each day.
+              <strong>⏰ Daily Reset:</strong> Your "maintained today" status
+              resets at midnight, giving you a fresh opportunity each day.
             </p>
             <p>
-              <strong>🏆 Streak Benefits:</strong> Longer streaks unlock achievements and boost your position on the
-              leaderboard.
+              <strong>🏆 Streak Benefits:</strong> Longer streaks unlock
+              achievements and boost your position on the leaderboard.
             </p>
           </div>
         </div>
@@ -267,7 +317,11 @@ const ProfilePage = () => {
           <h2>Achievements</h2>
 
           <div className="achievements-grid">
-            <div className={`achievement-item ${(progress.completedLessons?.length || 0) > 0 ? "unlocked" : ""}`}>
+            <div
+              className={`achievement-item ${
+                (progress.completedLessons?.length || 0) > 0 ? "unlocked" : ""
+              }`}
+            >
               <div className="achievement-icon">🏆</div>
               <div className="achievement-info">
                 <h3>First Steps</h3>
@@ -275,7 +329,11 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            <div className={`achievement-item ${(streakInfo?.streakCount || 0) >= 3 ? "unlocked" : ""}`}>
+            <div
+              className={`achievement-item ${
+                (streakInfo?.streakCount || 0) >= 3 ? "unlocked" : ""
+              }`}
+            >
               <div className="achievement-icon">🔥</div>
               <div className="achievement-info">
                 <h3>On Fire</h3>
@@ -283,7 +341,11 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            <div className={`achievement-item ${(progress.quizStats?.bestScore || 0) >= 100 ? "unlocked" : ""}`}>
+            <div
+              className={`achievement-item ${
+                (progress.quizStats?.bestScore || 0) >= 100 ? "unlocked" : ""
+              }`}
+            >
               <div className="achievement-icon">🌟</div>
               <div className="achievement-info">
                 <h3>Perfect Score</h3>
@@ -292,7 +354,11 @@ const ProfilePage = () => {
             </div>
 
             <div
-              className={`achievement-item ${(progress.completedLessons || []).includes("java-basics") ? "unlocked" : ""}`}
+              className={`achievement-item ${
+                (progress.completedLessons || []).includes("java-basics")
+                  ? "unlocked"
+                  : ""
+              }`}
             >
               <div className="achievement-icon">🧠</div>
               <div className="achievement-info">
@@ -301,7 +367,11 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            <div className={`achievement-item ${(streakInfo?.streakCount || 0) >= 7 ? "unlocked" : ""}`}>
+            <div
+              className={`achievement-item ${
+                (streakInfo?.streakCount || 0) >= 7 ? "unlocked" : ""
+              }`}
+            >
               <div className="achievement-icon">📅</div>
               <div className="achievement-info">
                 <h3>Weekly Warrior</h3>
@@ -309,7 +379,11 @@ const ProfilePage = () => {
               </div>
             </div>
 
-            <div className={`achievement-item ${(progress.quizStats?.totalQuizzes || 0) >= 10 ? "unlocked" : ""}`}>
+            <div
+              className={`achievement-item ${
+                (progress.quizStats?.totalQuizzes || 0) >= 10 ? "unlocked" : ""
+              }`}
+            >
               <div className="achievement-icon">🎓</div>
               <div className="achievement-info">
                 <h3>Quiz Champion</h3>
@@ -320,7 +394,7 @@ const ProfilePage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default ProfilePage
+export default ProfilePage;

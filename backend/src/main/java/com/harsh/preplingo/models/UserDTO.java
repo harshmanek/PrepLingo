@@ -12,6 +12,14 @@ public class UserDTO {
     private Date lastStreakDate;
     private boolean maintainedTodayStreak;
 
+    public UserDTO(User user) {
+        this.username = user.getUsername();
+        this.quizAttempts = user.getQuizAttempts();
+        this.createdAt = user.getCreatedAt();
+        this.role = user.getRole();
+    }
+
+
     public UserDTO(User user,UserStreak streak) {
         this.username = user.getUsername();
         this.quizAttempts = user.getQuizAttempts();

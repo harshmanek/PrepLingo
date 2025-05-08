@@ -38,6 +38,7 @@ public class AuthController {
         return ResponseEntity.ok(authService.authenticate(request));
     }
 
+
     @PostMapping("/refresh")
     public ResponseEntity<AuthResponse> refreshToken(@RequestHeader("Authorization") String refreshToken) {
         if (refreshToken != null && refreshToken.startsWith("Bearer ")) {
@@ -97,5 +98,19 @@ public class AuthController {
         response.put("maintainedToday", userDTO.isMaintainedTodayStreak());
 
         return ResponseEntity.ok(response);
+    }
+    @GetMapping("/user")
+    public ResponseEntity<UserDTO> getUserDetails() {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        String username = auth.getName();
+
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+        UserStreak userStreak = userStreakRepository.findByUserId(user.getId())
+                .orElse(new UserStreak(user.getId()));
+
+        UserDTO userDTO = new UserDTO(user, userStreak);
+        return ResponseEntity.ok(userDTO);
     }
 }
