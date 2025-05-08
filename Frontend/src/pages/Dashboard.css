@@ -25,7 +25,7 @@
 }
 
 .level-badge {
-  background-color: var(--primary-color);
+  background-color: #28a745; /* Default color for other levels */
   color: white;
   padding: 5px 12px;
   border-radius: 20px;
@@ -33,6 +33,10 @@
   font-size: 0.9rem;
   margin-right: 15px;
 }
+.level-badge.level-1 {
+  background-color: #28a745; /* Green for level 1 */
+}
+
 
 .xp-progress {
   flex: 1;
