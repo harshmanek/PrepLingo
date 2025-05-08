@@ -37,35 +37,35 @@ public class GptService {
 
 
     public Map<String, Object> generateQuestion(String topic) throws IOException {
-        String prompt = "You are an expert Java instructor. Your task is to generate high-quality multiple-choice questions (MCQs) for Java, suitable for college-level exams and placement preparation.\n" +
+        String prompt = "You are an expert instructor. Your task is to generate high-quality multiple-choice questions (MCQs) for " + topic + ", suitable for college-level exams and preparation.\n" +
                 "\n" +
                 "## Guidelines:\n" +
-                "- The questions must be conceptually correct, based on standard Java (JDK 8+) syntax, features, and behavior.\n" +
-                "- Each question should have 4 options (A to D), with only one correct answer.\n" +
-                "- Use real-world terminology and avoid ambiguous or outdated topics.\n" +
-                "- Provide a **concise explanation** (1-2 sentences) for the correct answer.\n" +
-                "- If you're not confident in a concept, do not generate the question.\n" +
-                "- Keep the question short and readable. Prefer concept-based or syntax-based questions.\n" +
+                "- Generate questions for the specified subject: " + topic + "\n" +
+                "- Questions must be conceptually correct and based on current standards and practices\n" +
+                "- Each question should have 4 options (A to D), with only one correct answer\n" +
+                "- Use field-specific terminology and avoid ambiguous or outdated topics\n" +
+                "- Provide a **concise explanation** (1-2 sentences) for the correct answer\n" +
+                "- If you're not confident in a concept, do not generate the question\n" +
+                "- Keep questions short, clear, and focused on core concepts\n" +
                 "\n" +
                 "## Format (Output MUST be valid JSON array):\n" +
                 "[\n" +
                 "  {\n" +
-                "    \"question\": \"<question text>\",\n" +
-                "    \"answer\": \"<correct option label and text, e.g., 'B) final keyword'>\",\n" +
+                "    \"question\": \"<" + topic + "-specific question>\",\n" +
+                "    \"answer\": \"<correct option label and text>\",\n" +
                 "    \"options\": {\n" +
                 "      \"A\": \"<option A>\",\n" +
                 "      \"B\": \"<option B>\",\n" +
                 "      \"C\": \"<option C>\",\n" +
                 "      \"D\": \"<option D>\"\n" +
                 "    },\n" +
-                "    \"explanation\": \"<1-2 sentence explanation that clearly supports the correct answer>\"\n" +
-                "  },\n" +
-                "  ...\n" +
+                "    \"explanation\": \"<concise explanation of the correct answer>\"\n" +
+                "  }\n" +
                 "]\n" +
                 "\n" +
                 "## Task:\n" +
-                "Generate {count} Java multiple-choice questions.\n" +
-                "Focus area: {topic}\n";
+                "Generate "+ topic + " multiple-choice questions.\n" +
+                "Ensure questions cover different aspects and difficulty levels within " + topic + ".\n";
 
         MediaType mediaType = MediaType.parse("application/json");
 
