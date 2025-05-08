@@ -1,5 +1,6 @@
 package com.harsh.preplingo.services;
 
+import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
@@ -16,9 +17,20 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    private static final String SECRET_KEY = "404E635266556A586E3272357538782F413F4428472B4B6250645367566B5970";
-    private static final long ACCESS_TOKEN_EXPIRATION = 1000 * 60 * 30; // 30 minutes
-    private static final long REFRESH_TOKEN_EXPIRATION = 1000 * 60 * 60 * 24 * 7; // 7 days
+    private final String secretKey;
+    private final long accessTokenExpiration ; // 30 minutes
+    private final long refreshTokenExpiration ; // 7 days
+
+    public JwtService() {
+        Dotenv dotenv = Dotenv.load();
+        this.secretKey = dotenv.get("JWT_SECRET");  // Changed from jwt.secret
+        this.accessTokenExpiration = Long.parseLong(
+                dotenv.get("JWT_ACCESS_EXPIRATION", "1800000")
+        );
+        this.refreshTokenExpiration = Long.parseLong(
+                dotenv.get("JWT_REFRESH_EXPIRATION", "604800000")
+        );
+    }
 
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
@@ -67,15 +79,15 @@ public class JwtService {
     }
 
     private Key getSignInKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(SECRET_KEY);
+        byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
     public String generateAccessToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, ACCESS_TOKEN_EXPIRATION);
+        return generateToken(new HashMap<>(), userDetails, accessTokenExpiration);
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
-        return generateToken(new HashMap<>(), userDetails, REFRESH_TOKEN_EXPIRATION);
+        return generateToken(new HashMap<>(), userDetails, refreshTokenExpiration);
     }
 
     private String generateToken(Map<String, Object> extraClaims, UserDetails userDetails, long expiration) {

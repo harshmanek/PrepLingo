@@ -1,11 +1,9 @@
 package com.harsh.preplingo.services;
 
 import com.harsh.preplingo.exceptions.InvalidTokenException;
-import com.harsh.preplingo.models.AuthRequest;
-import com.harsh.preplingo.models.RegisterRequest;
-import com.harsh.preplingo.models.TokenResponse;
-import com.harsh.preplingo.models.User;
+import com.harsh.preplingo.models.*;
 import com.harsh.preplingo.repository.UserRepository;
+import com.harsh.preplingo.repository.UserStreakRepository;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -20,18 +18,20 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
+    private final UserStreakRepository userStreakRepository;
 
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
                        JwtService jwtService,
-                       AuthenticationManager authenticationManager) {
+                       AuthenticationManager authenticationManager, UserStreakRepository userStreakRepository) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.userStreakRepository = userStreakRepository;
     }
 
-    public TokenResponse authenticate(AuthRequest request) {
+    public AuthResponse authenticate(AuthRequest request) {
         try {
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(
@@ -41,10 +41,10 @@ public class AuthService {
             );
             User user = userRepository.findByUsername(request.getUsername())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
+            UserStreak streak= userStreakRepository.findByUserId(user.getId()).orElse(new UserStreak(user.getId()));
             String accessToken = jwtService.generateAccessToken(user);
             String refreshToken = jwtService.generateRefreshToken(user);
-            return new TokenResponse(accessToken, refreshToken);
+            return new AuthResponse(accessToken, refreshToken,user,streak);
         } catch (AuthenticationException e) {
             throw new BadCredentialsException("Invalid username or password");
         }

@@ -1,0 +1,141 @@
+.navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: var(--header-height);
+    background-color: var(--background-color);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    padding: 0 20px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  
+  .navbar-left {
+    display: flex;
+    align-items: center;
+  }
+  
+  .navbar-logo {
+    display: flex;
+    align-items: center;
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .navbar-logo img {
+    height: 40px;
+    margin-right: 10px;
+  }
+  
+  .navbar-logo:hover {
+    text-decoration: none;
+  }
+  
+  .navbar-center {
+    display: flex;
+    align-items: center;
+  }
+  
+  .nav-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    margin: 0 15px;
+    color: var(--text-color);
+    text-decoration: none;
+    font-weight: 600;
+  }
+  
+  .nav-item i {
+    font-size: 1.2rem;
+    margin-bottom: 5px;
+  }
+  
+  .nav-item:hover {
+    color: var(--primary-color);
+    text-decoration: none;
+  }
+  
+  .navbar-right {
+    display: flex;
+    align-items: center;
+  }
+  
+  .user-stats {
+    display: flex;
+    align-items: center;
+    margin-right: 20px;
+  }
+  
+  .streak-counter,
+  .xp-counter {
+    display: flex;
+    align-items: center;
+    margin-left: 15px;
+    font-weight: 600;
+  }
+  
+  .streak-counter i,
+  .xp-counter i {
+    margin-right: 5px;
+    font-size: 1.2rem;
+  }
+  
+  .streak-counter i {
+    color: #ff9600;
+  }
+  
+  .xp-counter i {
+    color: #ffc800;
+  }
+  
+  .user-menu {
+    display: flex;
+    align-items: center;
+  }
+  
+  .profile-link {
+    margin-right: 10px;
+  }
+  
+  .avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background-color: var(--primary-color);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 1.2rem;
+  }
+  
+  .logout-button {
+    background: none;
+    border: none;
+    color: var(--light-text);
+    padding: 8px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .logout-button:hover {
+    background-color: var(--secondary-hover);
+  }
+  
+  @media (max-width: 768px) {
+    .navbar-center {
+      display: none;
+    }
+  
+    .user-stats {
+      display: none;
+    }
+  }
+  

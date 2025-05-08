@@ -27,6 +27,11 @@ public class User implements UserDetails {
         this.role = "USER";
     }
 
+    public void setCreatedAt(Date createdAt) {
+        this.createdAt = createdAt;
+    }
+
+
     // Standard getters and setters
     public String getId() {
         return id;
@@ -71,6 +76,7 @@ public class User implements UserDetails {
     public void setRole(String role) {
         this.role = role;
     }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority("ROLE_" + role));

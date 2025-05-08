@@ -30,19 +30,29 @@ public class QuestionService {
         }
 
         try {
-            List<Map<String, Object>> generatedQuestions = gptService.generateMultipleQuestions(topic, count);
-
+            List<Map<String, Object>> generatedQuestions = gptService.generateMultipleQuestions(topic, 1);
+            int storedCount = 0;
             for (Map<String, Object> response : generatedQuestions) {
                 if (response.containsKey("questions")) {
                     List<Map<String, Object>> questions = (List<Map<String, Object>>) response.get("questions");
                     for (Map<String, Object> q : questions) {
+                        // Stop if we've stored enough questions
+                        if (storedCount >= count) {
+                            break;
+                        }
+
                         Question question = new Question();
                         question.setQuestion((String) q.get("question"));
                         question.setAnswer((String) q.get("answer"));
                         question.setOptions((Map<String, String>) q.get("options"));
                         question.setExplanation((String) q.get("explanation"));
                         questionRepository.save(question);
+                        storedCount++;
                     }
+                }
+                // Break outer loop if we've stored enough questions
+                if (storedCount >= count) {
+                    break;
                 }
             }
         } catch (Exception e) {

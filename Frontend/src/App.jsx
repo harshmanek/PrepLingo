@@ -1,28 +1,101 @@
-import React from 'react';
-import Navbar from './components/navbar/Navbar';
-import HeroSection from './components/hero/HeroSection';
-import LanguagesSection from './components/courses/LanguagesSection';
-import FeaturesSection from './components/features/FeaturesSection';
-import HowItWorksSection from './components/how-it-works/HowItWorksSection';
-import GamificationSection from './components/gamification/GamificationSection';
-import TestimonialsSection from './components/testimonials/TestimonialsSection';
-import CtaSection from './components/cta/CtaSection';
-import Footer from './components/footer/Footer';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
+import { AuthProvider } from "./contexts/AuthContext"
+import { ProgressProvider } from "./contexts/ProgressContext"
+import Login from "./pages/Login"
+import Register from "./pages/Register"
+import Dashboard from "./pages/Dashboard"
+import LessonPage from "./pages/LessonPage"
+import QuizPage from "./pages/QuizPage"
+import ProfilePage from "./pages/ProfilePage"
+import LeaderboardPage from "./pages/LeaderboardPage"
+import GeneratePage from "./pages/GeneratePage"
+import CreateQuizPage from "./pages/CreateQuizPage"
+import QuizHistoryPage from "./pages/QuizHistoryPage"
+import NotFound from "./pages/NotFound"
+import ProtectedRoute from "./components/ProtectedRoute"
+import "./App.css"
 
-const App = () => {
+function App() {
   return (
-    <div className="min-h-screen">
-      <Navbar />
-      <HeroSection />
-      <LanguagesSection />
-      <FeaturesSection />
-      {/* <HowItWorksSection /> */}
-      <GamificationSection />
-      <TestimonialsSection />
-      <CtaSection />
-      <Footer />
-    </div>
-  );
-};
+    <Router>
+      <AuthProvider>
+        <ProgressProvider>
+          <div className="app-container">
+            <Routes>
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/dashboard"
+                element={
+                  <ProtectedRoute>
+                    <Dashboard />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/generate"
+                element={
+                  <ProtectedRoute>
+                    <GeneratePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/quiz/create"
+                element={
+                  <ProtectedRoute>
+                    <CreateQuizPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/dashboard/quiz/history"
+                element={
+                  <ProtectedRoute>
+                    <QuizHistoryPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/lesson/:topicId"
+                element={
+                  <ProtectedRoute>
+                    <LessonPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/quiz/:quizId"
+                element={
+                  <ProtectedRoute>
+                    <QuizPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/profile"
+                element={
+                  <ProtectedRoute>
+                    <ProfilePage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route
+                path="/leaderboard"
+                element={
+                  <ProtectedRoute>
+                    <LeaderboardPage />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/" element={<Navigate to="/dashboard" replace />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+        </ProgressProvider>
+      </AuthProvider>
+    </Router>
+  )
+}
 
-export default App;
+export default App

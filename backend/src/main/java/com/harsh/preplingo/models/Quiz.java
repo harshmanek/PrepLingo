@@ -16,7 +16,6 @@ public class Quiz {
     private String userId;
     private List<Question> questions;
     private Date createdAt;
-    private String topic;
     private int totalQuestions;
     private QuizStatus status;
     private int score;
@@ -97,13 +96,6 @@ public class Quiz {
         return createdAt;
     }
 
-    public String getTopic() {
-        return topic;
-    }
-
-    public void setTopic(String topic) {
-        this.topic = topic;
-    }
 
     public int getTotalQuestions() {
         return totalQuestions;
