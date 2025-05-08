@@ -49,14 +49,17 @@
 }
 
 .level-badge {
-  background-color: #4f46e5;
+  background-color: #28a745; /* Default color for other levels */
   color: white;
   padding: 5px 12px;
   border-radius: 20px;
   font-weight: 700;
   font-size: 0.9rem;
+  margin-right: 15px;
 }
-
+.level-badge.level-1 {
+  background-color: #28a745; /* Green for level 1 */
+}
 .profile-details {
   flex: 1;
 }
@@ -79,13 +82,13 @@
 }
 
 .profile-button.primary {
-  background-color: #4f46e5;
+  background-color: #28a745;
   color: white;
   border: none;
 }
 
 .profile-button.primary:hover {
-  background-color: #4338ca;
+  background-color: #28a745;
 }
 
 .profile-button.secondary {
@@ -204,7 +207,7 @@
 }
 
 .achievement-item.unlocked {
-  border-color: #4f46e5;
+  border-color: #28a745;
   background-color: rgba(79, 70, 229, 0.05);
   opacity: 1;
 }
@@ -260,7 +263,7 @@
 }
 
 .primary-button {
-  background-color: #4f46e5;
+  background-color: #28a745;
   color: white;
   padding: 12px 24px;
   border-radius: 12px;
@@ -270,7 +273,7 @@
 }
 
 .primary-button:hover {
-  background-color: #4338ca;
+  background-color: #28a745;
 }
 
 @media (max-width: 768px) {
