@@ -1,9 +1,6 @@
 package com.harsh.preplingo.services;
 
-import com.harsh.preplingo.models.Question;
-import com.harsh.preplingo.models.Quiz;
-import com.harsh.preplingo.models.QuizAttempt;
-import com.harsh.preplingo.models.User;
+import com.harsh.preplingo.models.*;
 import com.harsh.preplingo.repository.QuizAttemptRepository;
 import com.harsh.preplingo.repository.QuizRepository;
 import com.harsh.preplingo.repository.UserRepository;
@@ -16,6 +13,7 @@ import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 public class QuizService {
@@ -43,7 +41,8 @@ public class QuizService {
         return quizRepository.save(quiz);
     }
 
-    public QuizAttempt submitQuiz(String username, String quizId, Map<String, String> answers) throws AccessDeniedException {
+    public QuizSubmissionResponse submitQuiz(String username, String quizId, Map<String, String> answers)
+            throws AccessDeniedException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
 
@@ -51,64 +50,80 @@ public class QuizService {
                 .orElseThrow(() -> new RuntimeException("Quiz not found"));
 
         if (!quiz.getUserId().equals(user.getId())) {
-            throw new AccessDeniedException("Not authorized to submit this quiz");
+            throw new AccessDeniedException("This quiz belongs to another user");
         }
-int score =calculateScore(quiz.getQuestions(),answers);
 
-        updateStreak(user,score,quiz.getTotalQuestions());
-        QuizAttempt attempt = new QuizAttempt();
-        attempt.setUserId(user.getId());
-        attempt.setQuizId(quizId);
-        attempt.setUserAnswers(answers);
-        attempt.setScore(calculateScore(quiz.getQuestions(), answers));
-        attempt.setCompletedAt(new Date());
-        attempt.setStatus(Quiz.QuizStatus.COMPLETED);
+        // Generate feedback and calculate score
+        List<QuestionFeedback> feedback = generateFeedback(quiz.getQuestions(), answers);
+        int score = (int) feedback.stream().filter(QuestionFeedback::isCorrect).count();
 
+        // Update quiz status
         quiz.setStatus(Quiz.QuizStatus.COMPLETED);
+        quiz.setScore(score);
+        quiz.setAttemptedAt(new Date());
+        quiz.setUserAnswers(answers);
         quizRepository.save(quiz);
 
-        // Save the quiz attempt
-        QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
-        // Update the user's quiz attempts
-        user.getQuizAttempts().add(savedAttempt.getId());
-        userRepository.save(user);
+        // Update streak and get streak status
+        boolean streakMaintained = updateStreakAndGetStatus(user, score, quiz.getTotalQuestions());
 
-        return quizAttemptRepository.save(attempt);
+        // Save attempt
+        saveQuizAttempt(quiz, user, answers, score);
+
+        return new QuizSubmissionResponse(score, quiz.getTotalQuestions(), feedback, streakMaintained);
     }
-    private void updateStreak(User user, int score, int totalQuestions) {
-        Date currentDate = new Date();
-        double scorePercentage = (score * 100.0) / totalQuestions;
 
-        // Check if score is >= 50%
+    private boolean updateStreakAndGetStatus(User user, int score, int totalQuestions) {
+        double scorePercentage = (score * 100.0) / totalQuestions;
+        boolean streakMaintained = false;
+        Date currentDate = new Date();
+
         if (scorePercentage >= 50) {
+            streakMaintained = true;
             if (user.getLastStreakDate() == null) {
                 // First streak
                 user.setStreakCount(1);
                 user.setLastStreakDate(currentDate);
                 user.setMaintainedTodayStreak(true);
             } else {
-                // Check if this is a new day
                 Calendar last = Calendar.getInstance();
                 last.setTime(user.getLastStreakDate());
                 Calendar current = Calendar.getInstance();
                 current.setTime(currentDate);
 
                 if (isSameDay(last, current) && !user.isMaintainedTodayStreak()) {
-                    // First successful attempt today
                     user.setStreakCount(user.getStreakCount() + 1);
                     user.setMaintainedTodayStreak(true);
                 } else if (isConsecutiveDay(last, current)) {
-                    // Consecutive day
                     user.setStreakCount(user.getStreakCount() + 1);
                     user.setMaintainedTodayStreak(true);
                 } else if (!isSameDay(last, current)) {
-                    // Break streak if more than one day gap
                     user.setStreakCount(1);
                 }
                 user.setLastStreakDate(currentDate);
             }
             userRepository.save(user);
         }
+        return streakMaintained;
+    }
+
+    private List<QuestionFeedback> generateFeedback(List<Question> questions, Map<String, String> answers) {
+        return questions.stream()
+                .map(q -> {
+                    String userAnswer = answers.getOrDefault(q.getId(), "");
+                    String correctAnswer = q.getAnswer().substring(0, 1);
+                    boolean isCorrect = userAnswer.equals(correctAnswer);
+
+                    return new QuestionFeedback(
+                            q.getId(),
+                            q.getQuestion(),
+                            userAnswer,
+                            q.getAnswer(),
+                            q.getExplanation(),
+                            isCorrect
+                    );
+                })
+                .collect(Collectors.toList());
     }
 
     private boolean isSameDay(Calendar cal1, Calendar cal2) {
@@ -132,7 +147,23 @@ int score =calculateScore(quiz.getQuestions(),answers);
         }
         return score;
     }
+    private void saveQuizAttempt(Quiz quiz, User user, Map<String, String> answers, int score) {
+        QuizAttempt attempt = new QuizAttempt();
+        attempt.setUserId(user.getId());
+        attempt.setQuizId(quiz.getId());
+        attempt.setScore(score);
+        attempt.setStartedAt(quiz.getCreatedAt());
+        attempt.setCompletedAt(new Date());
+        attempt.setUserAnswers(answers);
+        attempt.setStatus(Quiz.QuizStatus.COMPLETED);
 
+        // Save the attempt
+        QuizAttempt savedAttempt = quizAttemptRepository.save(attempt);
+
+        // Update user's quiz attempts list
+        user.getQuizAttempts().add(savedAttempt.getId());
+        userRepository.save(user);
+    }
     public List<QuizAttempt> getQuizHistory(String username) throws AccessDeniedException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
