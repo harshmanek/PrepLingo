@@ -1,0 +1,300 @@
+.profile-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.profile-content {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.profile-header {
+  margin-bottom: 30px;
+}
+
+.profile-header h1 {
+  font-size: 2rem;
+}
+
+.profile-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  display: flex;
+  align-items: center;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.profile-avatar {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 30px;
+}
+
+.avatar-circle {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: #4f46e5;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+
+.level-badge {
+  background-color: #4f46e5;
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+
+.profile-details {
+  flex: 1;
+}
+
+.profile-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 5px;
+}
+
+.profile-info p {
+  color: #666;
+  margin-bottom: 15px;
+}
+
+.profile-button {
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.profile-button.primary {
+  background-color: #4f46e5;
+  color: white;
+  border: none;
+}
+
+.profile-button.primary:hover {
+  background-color: #4338ca;
+}
+
+.profile-button.secondary {
+  background-color: #f9fafb;
+  color: #111;
+  border: 1px solid #ddd;
+  margin-right: 10px;
+}
+
+.profile-button.secondary:hover {
+  background-color: #f3f4f6;
+}
+
+.edit-form {
+  width: 100%;
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: #333;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 20px;
+}
+
+.stats-card,
+.achievements-card,
+.streak-explanation-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.stats-card h2,
+.achievements-card h2,
+.streak-explanation-card h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.mt-4 {
+  margin-top: 20px;
+}
+
+.stat-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+.stat-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.stat-label {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.streak-explanation {
+  line-height: 1.6;
+}
+
+.streak-explanation p {
+  margin-bottom: 15px;
+}
+
+.achievements-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+  gap: 20px;
+}
+
+.achievement-item {
+  display: flex;
+  align-items: center;
+  padding: 15px;
+  border-radius: 12px;
+  border: 1px solid #ddd;
+  opacity: 0.7;
+}
+
+.achievement-item.unlocked {
+  border-color: #4f46e5;
+  background-color: rgba(79, 70, 229, 0.05);
+  opacity: 1;
+}
+
+.achievement-icon {
+  font-size: 2rem;
+  margin-right: 15px;
+}
+
+.achievement-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.achievement-info p {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.loading-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 50px 0;
+  text-align: center;
+}
+
+.loading-container p {
+  margin-top: 20px;
+  color: #666;
+}
+
+.error-state {
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  margin: 0 auto;
+  max-width: 600px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.error-state h2 {
+  font-size: 1.5rem;
+  margin-bottom: 15px;
+  color: #ef4444;
+}
+
+.error-state p {
+  margin-bottom: 20px;
+  color: #666;
+}
+
+.primary-button {
+  background-color: #4f46e5;
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  background-color: #4338ca;
+}
+
+@media (max-width: 768px) {
+  .profile-card {
+    flex-direction: column;
+    text-align: center;
+  }
+
+  .profile-avatar {
+    margin-right: 0;
+    margin-bottom: 20px;
+  }
+
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .form-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .form-actions button {
+    width: 100%;
+    margin-right: 0;
+  }
+}

@@ -1,0 +1,379 @@
+.dashboard-container {
+  min-height: 100vh;
+  background-color: #f5f5f5;
+}
+
+.dashboard-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 30px 20px;
+}
+
+.dashboard-header {
+  margin-bottom: 30px;
+}
+
+.dashboard-header h1 {
+  font-size: 2rem;
+  margin-bottom: 15px;
+}
+
+.user-level {
+  display: flex;
+  align-items: center;
+  margin-top: 10px;
+}
+
+.level-badge {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 5px 12px;
+  border-radius: 20px;
+  font-weight: 700;
+  font-size: 0.9rem;
+  margin-right: 15px;
+}
+
+.xp-progress {
+  flex: 1;
+  background-color: #e0e0e0;
+  height: 10px;
+  border-radius: 5px;
+  position: relative;
+  max-width: 300px;
+}
+
+.xp-bar {
+  background-color: var(--primary-color);
+  height: 100%;
+  border-radius: 5px;
+  transition: width 0.3s ease;
+}
+
+.xp-progress span {
+  position: absolute;
+  top: -20px;
+  right: 0;
+  font-size: 0.8rem;
+  color: var(--light-text);
+}
+
+/* Streak Card Styles */
+.streak-card {
+  display: flex;
+  align-items: center;
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.streak-icon {
+  font-size: 2.5rem;
+  margin-right: 20px;
+  color: #ff9900;
+}
+
+.streak-info {
+  flex: 1;
+}
+
+.streak-info h3 {
+  font-size: 1.2rem;
+  margin-bottom: 5px;
+  color: #ff9900;
+}
+
+.streak-info p {
+  color: var(--light-text);
+  font-size: 0.9rem;
+}
+
+.daily-goal-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.daily-goal-button:hover {
+  background-color: var(--primary-hover);
+}
+
+/* Streak Details Section */
+.streak-details {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin-bottom: 30px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.streak-details-header h2 {
+  font-size: 1.3rem;
+  margin-bottom: 20px;
+}
+
+.streak-details-cards {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+}
+
+.streak-detail-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px;
+  border-radius: 12px;
+  background-color: #f9f9f9;
+  text-align: center;
+  position: relative;
+}
+
+.streak-detail-icon {
+  font-size: 2rem;
+  margin-bottom: 10px;
+}
+
+.streak-detail-value {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin-bottom: 5px;
+}
+
+.streak-detail-label {
+  font-size: 0.9rem;
+  color: var(--light-text);
+}
+
+.streak-progress-bar {
+  width: 100%;
+  height: 6px;
+  background-color: #e0e0e0;
+  border-radius: 3px;
+  margin-top: 10px;
+  overflow: hidden;
+}
+
+.streak-progress-fill {
+  height: 100%;
+  background-color: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.recent-activity {
+  margin-bottom: 40px;
+}
+
+.recent-activity h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.activity-list {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.activity-item {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  position: relative;
+}
+
+.activity-icon {
+  font-size: 1.5rem;
+  margin-right: 15px;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+}
+
+.activity-info {
+  flex: 1;
+}
+
+.activity-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.activity-info p {
+  margin-bottom: 5px;
+}
+
+.activity-date {
+  font-size: 0.8rem;
+  color: var(--light-text);
+}
+
+.streak-badge {
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.streak-maintained {
+  background-color: rgba(43, 182, 115, 0.1);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+.streak-broken {
+  background-color: rgba(150, 150, 150, 0.1);
+  color: #777;
+  border: 1px solid #ccc;
+}
+
+.view-all-button {
+  background-color: transparent;
+  color: var(--primary-color);
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 600;
+  border: 1px solid var(--primary-color);
+  margin-top: 15px;
+  width: 100%;
+  cursor: pointer;
+}
+
+.view-all-button:hover {
+  background-color: rgba(var(--primary-color-rgb), 0.05);
+}
+
+.empty-state {
+  background-color: white;
+  border-radius: 16px;
+  padding: 30px;
+  text-align: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.empty-state p {
+  margin-bottom: 20px;
+  color: var(--light-text);
+}
+
+.primary-button {
+  background-color: var(--primary-color);
+  color: white;
+  padding: 10px 20px;
+  border-radius: 12px;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+}
+
+.primary-button:hover {
+  background-color: var(--primary-hover);
+}
+
+.quick-actions {
+  margin-bottom: 40px;
+}
+
+.quick-actions h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+}
+
+.actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 20px;
+}
+
+.action-card {
+  background-color: white;
+  border-radius: 16px;
+  padding: 20px;
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.action-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+}
+
+.action-icon {
+  font-size: 2rem;
+  margin-right: 15px;
+  width: 50px;
+  height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f5f5f5;
+  border-radius: 12px;
+}
+
+.action-info {
+  flex: 1;
+}
+
+.action-info h3 {
+  font-size: 1.1rem;
+  margin-bottom: 5px;
+}
+
+.action-info p {
+  color: var(--light-text);
+  font-size: 0.9rem;
+}
+
+@media (max-width: 768px) {
+  .streak-card {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .streak-icon {
+    margin-bottom: 10px;
+  }
+
+  .streak-info {
+    margin-bottom: 15px;
+  }
+
+  .streak-details-cards {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .activity-icon {
+    margin-bottom: 10px;
+  }
+
+  .activity-streak-impact {
+    margin-left: 0;
+    margin-top: 10px;
+  }
+
+  .actions-grid {
+    grid-template-columns: 1fr;
+  }
+}
