@@ -12,14 +12,16 @@ public class UserDTO {
     private Date lastStreakDate;
     private boolean maintainedTodayStreak;
 
-    public UserDTO(User user) {
+    public UserDTO(User user,UserStreak streak) {
         this.username = user.getUsername();
         this.quizAttempts = user.getQuizAttempts();
         this.createdAt = user.getCreatedAt();
         this.role = user.getRole();
-        this.streakCount = user.getStreakCount();
-        this.lastStreakDate = user.getLastStreakDate();
-        this.maintainedTodayStreak = user.isMaintainedTodayStreak();
+        if (streak != null) {
+            this.streakCount = streak.getStreakCount();
+            this.lastStreakDate = streak.getLastStreakDate();
+            this.maintainedTodayStreak = streak.isMaintainedTodayStreak();
+        }
     }
 
     public String getUsername() {

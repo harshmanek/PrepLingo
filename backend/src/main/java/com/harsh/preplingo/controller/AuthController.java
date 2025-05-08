@@ -3,6 +3,7 @@ package com.harsh.preplingo.controller;
 import com.harsh.preplingo.exceptions.InvalidTokenException;
 import com.harsh.preplingo.models.*;
 import com.harsh.preplingo.repository.UserRepository;
+import com.harsh.preplingo.repository.UserStreakRepository;
 import com.harsh.preplingo.services.AuthService;
 import com.harsh.preplingo.services.JwtService;
 import org.springframework.http.HttpStatus;
@@ -23,10 +24,13 @@ public class AuthController {
     private final AuthService authService;
     private final UserRepository userRepository;
     private final JwtService jwtService;
-    public AuthController(AuthService authService , UserRepository userRepository, JwtService jwtService) {
+    private final UserStreakRepository userStreakRepository;
+
+    public AuthController(AuthService authService, UserRepository userRepository, JwtService jwtService, UserStreakRepository userStreakRepository) {
         this.authService = authService;
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.userStreakRepository = userStreakRepository;
     }
 
     @PostMapping("/authenticate")
@@ -41,11 +45,14 @@ public class AuthController {
                     jwtService.extractUsername(refreshToken.substring(7))
             ).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
+            UserStreak userStreak = userStreakRepository.findByUserId(user.getId())
+                    .orElse(new UserStreak(user.getId()));
             TokenResponse tokens = authService.refreshToken(refreshToken.substring(7));
             return ResponseEntity.ok(new AuthResponse(
                     tokens.getAccessToken(),
                     tokens.getRefreshToken(),
-                    user
+                    user,
+                    userStreak
             ));
         }
         return ResponseEntity.badRequest().build();
@@ -82,11 +89,12 @@ public class AuthController {
 
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));
-
+        UserStreak userStreak = userStreakRepository.findByUserId(user.getId()).orElse(new UserStreak(user.getId()));
+        UserDTO userDTO = new UserDTO(user,userStreak);
         Map<String, Object> response = new HashMap<>();
-        response.put("streakCount", user.getStreakCount());
-        response.put("lastStreakDate", user.getLastStreakDate());
-        response.put("maintainedToday", user.isMaintainedTodayStreak());
+        response.put("streakCount", userDTO.getStreakCount());
+        response.put("lastStreakDate", userDTO.getLastStreakDate());
+        response.put("maintainedToday", userDTO.isMaintainedTodayStreak());
 
         return ResponseEntity.ok(response);
     }

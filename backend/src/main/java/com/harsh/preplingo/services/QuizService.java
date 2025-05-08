@@ -4,10 +4,11 @@ import com.harsh.preplingo.models.*;
 import com.harsh.preplingo.repository.QuizAttemptRepository;
 import com.harsh.preplingo.repository.QuizRepository;
 import com.harsh.preplingo.repository.UserRepository;
+import com.harsh.preplingo.repository.UserStreakRepository;
 import com.harsh.preplingo.services.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
+import org.apache.commons.lang3.time.DateUtils;
 import java.nio.file.AccessDeniedException;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,6 +26,8 @@ public class QuizService {
     private QuizRepository quizRepository;
     @Autowired
     private QuizAttemptRepository quizAttemptRepository;
+    @Autowired
+    private UserStreakRepository userStreakRepository;
 
     public Quiz createQuiz(String username, int questionCount) throws AccessDeniedException {
         User user = userRepository.findByUsername(username)
@@ -78,32 +81,31 @@ public class QuizService {
         boolean streakMaintained = false;
         Date currentDate = new Date();
 
+        // Get or create user streak
+        UserStreak userStreak = userStreakRepository.findByUserId(user.getId())
+                .orElse(new UserStreak(user.getId()));
+
         if (scorePercentage >= 50) {
             streakMaintained = true;
-            if (user.getLastStreakDate() == null) {
-                // First streak
-                user.setStreakCount(1);
-                user.setLastStreakDate(currentDate);
-                user.setMaintainedTodayStreak(true);
+            if (userStreak.getLastStreakDate() == null) {
+                userStreak.setStreakCount(1);
             } else {
-                Calendar last = Calendar.getInstance();
-                last.setTime(user.getLastStreakDate());
-                Calendar current = Calendar.getInstance();
-                current.setTime(currentDate);
+                Calendar cal = Calendar.getInstance();
+                cal.setTime(currentDate);
+                cal.add(Calendar.DATE, -1);
+                Date yesterday = cal.getTime();
 
-                if (isSameDay(last, current) && !user.isMaintainedTodayStreak()) {
-                    user.setStreakCount(user.getStreakCount() + 1);
-                    user.setMaintainedTodayStreak(true);
-                } else if (isConsecutiveDay(last, current)) {
-                    user.setStreakCount(user.getStreakCount() + 1);
-                    user.setMaintainedTodayStreak(true);
-                } else if (!isSameDay(last, current)) {
-                    user.setStreakCount(1);
+                if (DateUtils.isSameDay(userStreak.getLastStreakDate(), yesterday)) {
+                    userStreak.setStreakCount(userStreak.getStreakCount() + 1);
+                } else if (!DateUtils.isSameDay(userStreak.getLastStreakDate(), currentDate)) {
+                    userStreak.setStreakCount(1);
                 }
-                user.setLastStreakDate(currentDate);
             }
-            userRepository.save(user);
+            userStreak.setLastStreakDate(currentDate);
+            userStreak.setMaintainedTodayStreak(true);
         }
+
+        userStreakRepository.save(userStreak);
         return streakMaintained;
     }
 
