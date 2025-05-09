@@ -77,7 +77,7 @@ Preplingo is built using a modern and scalable stack:
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/preplingo.git
+git clone https://github.com/harshmanek/PrepLingo/tree/hm
 
 # Navigate to the project directory
 cd preplingo
