@@ -90,3 +90,7 @@ cp .env.example .env
 
 # Start the development server
 npm start
+
+
+
+![WhatsApp Image 2025-05-08 at 23 15 51_d034b744](https://github.com/user-attachments/assets/4ea58df4-a206-418e-9e13-2670f10e563a)
