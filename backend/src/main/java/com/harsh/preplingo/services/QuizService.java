@@ -5,7 +5,6 @@ import com.harsh.preplingo.repository.QuizAttemptRepository;
 import com.harsh.preplingo.repository.QuizRepository;
 import com.harsh.preplingo.repository.UserRepository;
 import com.harsh.preplingo.repository.UserStreakRepository;
-import com.harsh.preplingo.services.QuestionService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.apache.commons.lang3.time.DateUtils;

@@ -1,16 +1,11 @@
 package com.harsh.preplingo;
 
-import com.harsh.preplingo.models.Question;
-import com.harsh.preplingo.repository.QuestionRepository;
 import com.harsh.preplingo.repository.UserRepository;
 import com.harsh.preplingo.repository.UserStreakRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;

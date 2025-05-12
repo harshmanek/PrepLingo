@@ -1,7 +1,6 @@
 package com.harsh.preplingo.models;
 
 import java.util.List;
-import java.util.Map;
 
 public class QuizSubmissionResponse {
     private int score;
