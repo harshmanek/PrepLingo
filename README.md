@@ -90,8 +90,19 @@ cp .env.example .env
 
 # Start the development server
 npm start
-
+```
+![Screenshot (67)](https://github.com/user-attachments/assets/75d433df-6ae4-41cb-a524-6b6b4bb237e1)
 ![WhatsApp Image 2025-05-08 at 23 15 51_d034b744](https://github.com/user-attachments/assets/725e93bd-c8cc-4a8f-b8e2-68a399a023e1)
+![Screenshot (69)](https://github.com/user-attachments/assets/cf73c174-4c45-4e80-97eb-9bbb6e02fe3b)
+![Screenshot (70)](https://github.com/user-attachments/assets/b0462fbe-394a-4c88-ab0a-68489c3260a1)
+![Screenshot (71)](https://github.com/user-attachments/assets/ac766826-e739-4067-b9dd-980675f213d9)
+![Screenshot (72)](https://github.com/user-attachments/assets/d36747c6-0caa-4858-a961-08f433c910d9)
+![Screenshot (73)](https://github.com/user-attachments/assets/3ce8c4e8-2fa7-4182-90d5-acd267066c05)
+![Screenshot (74)](https://github.com/user-attachments/assets/71e995ed-660f-4dba-b741-5d2f16d8238a)
+![Screenshot (75)](https://github.com/user-attachments/assets/d49ac795-e709-46ce-8b89-06ba9dc1cb30)
+![Screenshot (76)](https://github.com/user-attachments/assets/a906385a-da1a-4468-beef-ff9697177c0e)
+
+
 
 
 
