@@ -4,19 +4,6 @@
 
 ---
 
-## 📚 Table of Contents
-- [About](#about)
-- [Technology Stack](#technology-stack)
-- [Features](#features)
-- [AI Quiz Generation Process](#ai-quiz-generation-process)
-- [User Experience](#user-experience)
-- [Benefits](#benefits)
-- [Installation](#installation)
-- [Usage](#usage)
-- [Contributing](#contributing)
-
----
-
 ## 🔍 About
 
 **Preplingo** is an innovative learning platform that harnesses the power of AI to generate personalized quizzes tailored for placement exam preparation. Unlike traditional static quiz apps, Preplingo adapts dynamically to your knowledge level, creating a learning journey that boosts retention, engagement, and performance.
@@ -98,8 +85,8 @@ npm start
 ![Screenshot (71)](https://github.com/user-attachments/assets/ac766826-e739-4067-b9dd-980675f213d9)
 ![Screenshot (72)](https://github.com/user-attachments/assets/d36747c6-0caa-4858-a961-08f433c910d9)
 ![Screenshot (73)](https://github.com/user-attachments/assets/3ce8c4e8-2fa7-4182-90d5-acd267066c05)
-![Screenshot (74)](https://github.com/user-attachments/assets/71e995ed-660f-4dba-b741-5d2f16d8238a)
 ![Screenshot (75)](https://github.com/user-attachments/assets/d49ac795-e709-46ce-8b89-06ba9dc1cb30)
+![Screenshot (74)](https://github.com/user-attachments/assets/71e995ed-660f-4dba-b741-5d2f16d8238a)
 ![Screenshot (76)](https://github.com/user-attachments/assets/a906385a-da1a-4468-beef-ff9697177c0e)
 
 
