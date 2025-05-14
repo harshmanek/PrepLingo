@@ -88,6 +88,4 @@ public class QuizAttempt {
     public void setStatus(Quiz.QuizStatus status) {
         this.status = status;
     }
-// Getters and setters
-    // ... standard getters and setters for all fields
 }

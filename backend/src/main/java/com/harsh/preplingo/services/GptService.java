@@ -35,36 +35,7 @@ public class GptService {
 
 
     public Map<String, Object> generateQuestion(String topic) throws IOException {
-        String prompt = "You are an expert instructor. Your task is to generate high-quality multiple-choice questions (MCQs) for " + topic + ", suitable for college-level exams and preparation.\n" +
-                "\n" +
-                "## Guidelines:\n" +
-                "- Generate questions for the specified subject: " + topic + "\n" +
-                "- Questions must be conceptually correct and based on current standards and practices\n" +
-                "- Each question should have 4 options (A to D), with only one correct answer\n" +
-                "- Use field-specific terminology and avoid ambiguous or outdated topics\n" +
-                "- Provide a **concise explanation** (1-2 sentences) for the correct answer\n" +
-                "- If you're not confident in a concept, do not generate the question\n" +
-                "- Keep questions short, clear, and focused on core concepts\n" +
-                "\n" +
-                "## Format (Output MUST be valid JSON array):\n" +
-                "[\n" +
-                "  {\n" +
-                "    \"question\": \"<" + topic + "-specific question>\",\n" +
-                "    \"answer\": \"<correct option label and text>\",\n" +
-                "    \"options\": {\n" +
-                "      \"A\": \"<option A>\",\n" +
-                "      \"B\": \"<option B>\",\n" +
-                "      \"C\": \"<option C>\",\n" +
-                "      \"D\": \"<option D>\"\n" +
-                "    },\n" +
-                "    \"explanation\": \"<concise explanation of the correct answer>\"\n" +
-                "  }\n" +
-                "]\n" +
-                "\n" +
-                "## Task:\n" +
-                "Generate "+ topic + " multiple-choice questions.\n" +
-                "Ensure questions cover different aspects and difficulty levels within " + topic + ".\n";
-
+        String prompt = "You are an expert instructor. Generate ONE multiple-choice question (MCQ) for " + topic + ".\n" + "\n" + "IMPORTANT: Follow this EXACT format for options and answers:\n" + "- Options MUST be labeled as A, B, C, D only\n" + "- Answer MUST start with the letter (A, B, C, or D) followed by the option text\n" + "- All JSON keys must match exactly as shown in example\n" + "\n" + "Example format:\n" + "[\n" + "  {\n" + "    \"question\": \"What is the capital of France?\",\n" + "    \"options\": {\n" + "      \"A\": \"London\",\n" + "      \"B\": \"Paris\",\n" + "      \"C\": \"Berlin\",\n" + "      \"D\": \"Madrid\"\n" + "    },\n" + "    \"answer\": \"B) Paris\",\n" + "    \"explanation\": \"Paris is the capital and largest city of France.\"\n" + "  }\n" + "]\n" + "\n" + "Requirements:\n" + "- Generate ONE " + topic + " question\n" + "- Question must be college-level\n" + "- Include only one correct answer\n" + "- Keep explanation concise (1-2 sentences)\n" + "- Focus on core concepts\n" + "- Use current standards and practices\n" + "\n" + "CRITICAL: Output must be a valid JSON array following the exact format shown above.";
         MediaType mediaType = MediaType.parse("application/json");
 
         ObjectMapper mapper = new ObjectMapper();
@@ -124,9 +95,7 @@ public class GptService {
                 String explanation = (String) question.get("explanation");
                 if (explanation != null) {
                     String[] sentences = explanation.split("\\.\\s+");
-                    String conciseExplanation = sentences.length > 2
-                            ? sentences[0] + ". " + sentences[1] + "."
-                            : explanation;
+                    String conciseExplanation = sentences.length > 2 ? sentences[0] + ". " + sentences[1] + "." : explanation;
                     question.put("explanation", conciseExplanation.trim());
                 }
             }
@@ -140,21 +109,18 @@ public class GptService {
         return result;
     }
 
-    public List<Map<String,Object>> generateMultipleQuestions(String topic,int count) throws InterruptedException, ExecutionException {
-        List<CompletableFuture<Map<String,Object>>> futures = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            futures.add(generateQuestionAsync(topic));
-        }
-        CompletableFuture.allOf((futures.toArray(new CompletableFuture[0]))).join();
+    public List<Map<String, Object>> generateMultipleQuestions(String topic, int count) throws InterruptedException, ExecutionException {
+        List<Map<String, Object>> allQuestions = new ArrayList<>();
 
-        List<Map<String,Object>> results = new ArrayList<>();
-        for (CompletableFuture<Map<String,Object>> future : futures) {
+        for (int i = 0; i < count; i++) {
             try {
-                results.add(future.get());
-            } catch (ExecutionException e) {
-                e.printStackTrace();
+                Map<String, Object> question = generateQuestion(topic);
+                allQuestions.add(question);
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to generate question " + (i + 1) + ": " + e.getMessage());
             }
         }
-        return results;
+
+        return allQuestions;
     }
 }

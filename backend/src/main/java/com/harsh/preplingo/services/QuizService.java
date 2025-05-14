@@ -136,18 +136,6 @@ public class QuizService {
         cal1.add(Calendar.DAY_OF_YEAR, 1);
         return isSameDay(cal1, cal2);
     }
-    private int calculateScore(List<Question> questions, Map<String, String> answers) {
-        int score = 0;
-        for (Question q : questions) {
-            String userAnswer = answers.get(q.getId());
-            // Extract just the letter from the correct answer (e.g., "B) It prevents further reassignment" -> "B")
-            String correctAnswer = q.getAnswer().substring(0, 1);
-            if (userAnswer != null && userAnswer.equals(correctAnswer)) {
-                score++;
-            }
-        }
-        return score;
-    }
     private void saveQuizAttempt(Quiz quiz, User user, Map<String, String> answers, int score) {
         QuizAttempt attempt = new QuizAttempt();
         attempt.setUserId(user.getId());

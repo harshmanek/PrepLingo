@@ -1,19 +1,24 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
-import { AuthProvider } from "./contexts/AuthContext"
-import { ProgressProvider } from "./contexts/ProgressContext"
-import Login from "./pages/Login"
-import Register from "./pages/Register"
-import Dashboard from "./pages/Dashboard"
-import LessonPage from "./pages/LessonPage"
-import QuizPage from "./pages/QuizPage"
-import ProfilePage from "./pages/ProfilePage"
-import LeaderboardPage from "./pages/LeaderboardPage"
-import GeneratePage from "./pages/GeneratePage"
-import CreateQuizPage from "./pages/CreateQuizPage"
-import QuizHistoryPage from "./pages/QuizHistoryPage"
-import NotFound from "./pages/NotFound"
-import ProtectedRoute from "./components/ProtectedRoute"
-import "./App.css"
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { AuthProvider } from "./contexts/AuthContext";
+import { ProgressProvider } from "./contexts/ProgressContext";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import LessonPage from "./pages/LessonPage";
+import QuizPage from "./pages/QuizPage";
+import ProfilePage from "./pages/ProfilePage";
+import LeaderboardPage from "./pages/LeaderboardPage";
+import GeneratePage from "./pages/GeneratePage";
+import CreateQuizPage from "./pages/CreateQuizPage";
+import QuizHistoryPage from "./pages/QuizHistoryPage";
+import NotFound from "./pages/NotFound";
+import ProtectedRoute from "./components/ProtectedRoute";
+import "./App.css";
 
 function App() {
   return (
@@ -95,7 +100,7 @@ function App() {
         </ProgressProvider>
       </AuthProvider>
     </Router>
-  )
+  );
 }
 
-export default App
+export default App;

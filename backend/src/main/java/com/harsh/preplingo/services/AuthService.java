@@ -46,7 +46,7 @@ public class AuthService {
             String refreshToken = jwtService.generateRefreshToken(user);
             return new AuthResponse(accessToken, refreshToken,user,streak);
         } catch (AuthenticationException e) {
-            throw new BadCredentialsException("Invalid username or password");
+            throw new BadCredentialsException("Invalid username or password :(");
         }
     }
     public String register(RegisterRequest request) {

@@ -87,5 +87,4 @@ public class UserDTO {
     public void setMaintainedTodayStreak(boolean maintainedTodayStreak) {
         this.maintainedTodayStreak = maintainedTodayStreak;
     }
-// Getters and setters for all fields
 }

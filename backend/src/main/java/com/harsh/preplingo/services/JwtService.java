@@ -25,7 +25,7 @@ public class JwtService {
         Dotenv dotenv = Dotenv.load();
         this.secretKey = dotenv.get("JWT_SECRET");  // Changed from jwt.secret
         this.accessTokenExpiration = Long.parseLong(
-                dotenv.get("JWT_ACCESS_EXPIRATION", "1800000")
+                dotenv.get("JWT_ACCESS_EXPIRATION", "3600000")
         );
         this.refreshTokenExpiration = Long.parseLong(
                 dotenv.get("JWT_REFRESH_EXPIRATION", "604800000")

@@ -3,6 +3,7 @@ package com.harsh.preplingo.config;
 import com.harsh.preplingo.repository.UserRepository;
 import com.harsh.preplingo.services.CustomUserDetailsService;
 import com.harsh.preplingo.services.JwtService;
+import com.harsh.preplingo.services.TokenBlacklistService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -29,11 +30,12 @@ public class SecurityConfig {
 
     private final UserRepository userRepository;
     private final JwtService jwtService;
-
+    private final TokenBlacklistService tokenBlacklistService;
     @Autowired
-    public SecurityConfig(UserRepository userRepository, JwtService jwtService) {
+    public SecurityConfig(UserRepository userRepository, JwtService jwtService,TokenBlacklistService tokenBlacklistService) {
         this.userRepository = userRepository;
         this.jwtService = jwtService;
+        this.tokenBlacklistService = tokenBlacklistService;
     }
 
     @Bean
@@ -47,9 +49,13 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/questions/**").authenticated()
+                        .requestMatchers("/api/quiz/**").authenticated()
+                        .requestMatchers("/api/gpt/**").authenticated()
                         .requestMatchers("/api/auth/user").authenticated()
+                        .requestMatchers("/api/auth/refresh").permitAll()
+                        .requestMatchers("/api/auth/streak").authenticated()
+                        .requestMatchers("/api/auth/**").permitAll()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session
@@ -63,7 +69,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthFilter jwtAuthFilter() {
-        return new JwtAuthFilter(jwtService, userDetailsService());
+        return new JwtAuthFilter(jwtService, userDetailsService(), tokenBlacklistService);
     }
 
     @Bean
@@ -77,8 +83,8 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173","http:/localhost:5000")); // Replace with your frontend URL
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        configuration.setAllowedOrigins(List.of("http://localhost:5173")); // Replace with your frontend URL
+        configuration.setAllowedMethods(List.of("GET","POST", "PUT", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization"));
         configuration.setAllowCredentials(true);

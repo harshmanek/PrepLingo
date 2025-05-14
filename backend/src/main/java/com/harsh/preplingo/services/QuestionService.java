@@ -30,7 +30,7 @@ public class QuestionService {
         }
 
         try {
-            List<Map<String, Object>> generatedQuestions = gptService.generateMultipleQuestions(topic, 1);
+            List<Map<String, Object>> generatedQuestions = gptService.generateMultipleQuestions(topic, count);
             int storedCount = 0;
             for (Map<String, Object> response : generatedQuestions) {
                 if (response.containsKey("questions")) {
