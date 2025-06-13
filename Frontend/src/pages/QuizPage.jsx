@@ -38,7 +38,7 @@ const QuizPage = () => {
         // Try to fetch the quiz by ID
         let quizData
         try {
-          quizData = await quizService.getQuiz(quizId)
+          quizData = await quizService.createQuiz(getQuestionCount())
         } catch (err) {
           console.log("Quiz not found, creating mock quiz with random questions")
 

@@ -1,0 +1,292 @@
+\documentclass[10pt, letterpaper]{article}
+
+% Packages:
+\usepackage[
+    ignoreheadfoot, % set margins without considering header and footer
+    top=1 cm, % seperation between body and page edge from the top
+    bottom=2 cm, % seperation between body and page edge from the bottom
+    left=2 cm, % seperation between body and page edge from the left
+    right=2 cm, % seperation between body and page edge from the right
+    footskip=1.0 cm, % seperation between body and footer
+    % showframe % for debugging 
+]{geometry} % for adjusting page geometry
+\usepackage{titlesec} % for customizing section titles
+\usepackage{tabularx} % for making tables with fixed width columns
+\usepackage{array} % tabularx requires this
+\usepackage[dvipsnames]{xcolor} % for coloring text
+\definecolor{primaryColor}{RGB}{0, 79, 144} % define primary color
+\usepackage{enumitem} % for customizing lists
+\usepackage{fontawesome5} % for using icons
+\usepackage{amsmath} % for math
+\usepackage[
+    pdftitle={Harsh Manek's Resume},
+    pdfauthor={Harsh Manek},
+    pdfcreator={LaTeX with RenderCV},
+    colorlinks=true,
+    urlcolor=primaryColor
+]{hyperref} % for links, metadata and bookmarks
+\usepackage[pscoord]{eso-pic} % for floating text on the page
+\usepackage{calc} % for calculating lengths
+\usepackage{bookmark} % for bookmarks
+\usepackage{lastpage} % for getting the total number of pages
+\usepackage{changepage} % for one column entries (adjustwidth environment)
+\usepackage{paracol} % for two and three column entries
+\usepackage{ifthen} % for conditional statements
+\usepackage{needspace} % for avoiding page brake right after the section title
+\usepackage{iftex} % check if engine is pdflatex, xetex or luatex
+\hypersetup{
+    colorlinks=true,
+    urlcolor=black
+}
+% Ensure that generate pdf is machine readable/ATS parsable:
+\ifPDFTeX
+    \input{glyphtounicode}
+    \pdfgentounicode=1
+    % \usepackage[T1]{fontenc} % this breaks sb2nov
+    \usepackage[utf8]{inputenc}
+    \usepackage{lmodern}
+\fi
+
+
+
+% Some settings:
+\AtBeginEnvironment{adjustwidth}{\partopsep0pt} % remove space before adjustwidth environment
+\pagestyle{empty} % no header or footer
+\setcounter{secnumdepth}{0} % no section numbering
+\setlength{\parindent}{0pt} % no indentation
+\setlength{\topskip}{0pt} % no top skip
+\setlength{\columnsep}{0cm} % set column seperation
+\makeatletter
+\let\ps@customFooterStyle\ps@plain % Copy the plain style to customFooterStyle
+\makeatother
+\pagestyle{customFooterStyle}
+
+\titleformat{\section}{\needspace{4\baselineskip}\bfseries\large}{}{0pt}{}[\vspace{1pt}\titlerule]
+
+\titlespacing{\section}{
+    % left space:
+    -1pt
+}{
+    % top space:
+    0.2 cm
+}{
+    % bottom space:
+    0.1 cm
+} % section title spacing
+
+\renewcommand\labelitemi{$\circ$} % custom bullet points
+\newenvironment{highlights}{
+    \begin{itemize}[
+        topsep=0.05 cm,
+        parsep=0.05 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=0.4 cm + 10pt
+    ]
+}{
+    \end{itemize}
+} % new environment for highlights
+
+\newenvironment{highlightsforbulletentries}{
+    \begin{itemize}[
+        topsep=0.10 cm,
+        parsep=0.10 cm,
+        partopsep=0pt,
+        itemsep=0pt,
+        leftmargin=10pt
+    ]
+}{
+    \end{itemize}
+} % new environment for highlights for bullet entries
+
+
+\newenvironment{onecolentry}{
+    \begin{adjustwidth}{
+        0.2 cm + 0.00001 cm
+    }{
+        0.2 cm + 0.00001 cm
+    }
+}{
+    \end{adjustwidth}
+} % new environment for one column entries
+
+\newenvironment{twocolentry}[2][]{
+    \onecolentry
+    \def\secondColumn{#2}
+    \setcolumnwidth{\fill, 4.5 cm}
+    \begin{paracol}{2}
+}{
+    \switchcolumn \raggedleft \secondColumn
+    \end{paracol}
+    \endonecolentry
+} % new environment for two column entries
+
+\newenvironment{header}{
+    \setlength{\topsep}{0pt}\par\kern\topsep\centering\linespread{1.5}
+}{
+    \par\kern\topsep
+} % new environment for the header
+
+\newcommand{\placelastupdatedtext}{% \placetextbox{<horizontal pos>}{<vertical pos>}{<stuff>}
+  \AddToShipoutPictureFG*{% Add <stuff> to current page foreground
+    \put(
+        \LenToUnit{\paperwidth-2 cm-0.2 cm+0.05cm},
+        \LenToUnit{\paperheight-1.0 cm}
+    )%
+  }%
+}%
+
+% save the original href command in a new command:
+\let\hrefWithoutArrow\href
+
+% new command for external links:
+\renewcommand{\href}[2]{\hrefWithoutArrow{#1}{\ifthenelse{\equal{#2}{}}{ }{#2 }\raisebox{.15ex}{\footnotesize \faExternalLink*}}}
+
+
+\begin{document}
+    \newcommand{\AND}{\unskip
+        \cleaders\copy\ANDbox\hskip\wd\ANDbox
+        \ignorespaces
+    }
+    \newsavebox\ANDbox
+    \sbox\ANDbox{}
+
+    \placelastupdatedtext
+    \begin{center}
+    \textbf{\Huge Harsh Manek} \\[0.3em]
+    Rajkot, Gujarat, India \\[0.3em]
+    \makebox[0pt][c]{%
+        \faIcon{envelope} \href{mailto:harshmanek786@gmail.com}{harshmanek} \quad
+        \faIcon{phone} +91-9265463551 \quad
+        \faIcon{linkedin} \href{https://linkedin.com/in/harshmanek10}{linkedin.com/in/harshmanek10} \quad
+        \faIcon{github} \href{https://github.com/harshmanek}{github.com/harshmanek}
+    }
+\end{center}
+
+
+    \vspace{0.1 cm}
+
+
+    \section{Summary}
+
+
+
+        
+        \begin{onecolentry}
+            Highly motivated IT Engineer passionate about crafting scalable full-stack applications. Seeking to leverage strong technical skills in Java, Spring Boot, and React in a challenging development environment.\end{onecolentry}
+
+        \vspace{0.05 cm}
+
+ 
+
+  
+
+    \section{Education}
+
+
+
+        
+        \begin{twocolentry}{
+            
+            
+        \textit{July 2022 - May 2026}}
+            \textbf{Bachelor of Technology in Information Technology}
+
+            \textit{Dharmsinh Desai University, Nadiad, India }
+        \end{twocolentry}
+
+        \vspace{0.05 cm}
+        \begin{onecolentry}
+            \begin{highlights}
+                \item CGPA 8.04/10. \textbf{Relevant Courses:} Data Structures \& Algorithms, Computer Architecture and Organization, Machine Learning, Computer Networks, Software Engineering
+            \end{highlights}
+        \end{onecolentry}
+
+
+
+    
+    \section{Projects}
+
+        \begin{twocolentry}{
+        \textit{Nadiad, IN}    
+            
+        \textit{Dec 2024 – March 2025}}
+            \textbf{PrepLingo}
+            
+            \textit{React, TypeScript, Node.js, MongoDB}
+        \end{twocolentry}
+        \vspace{0.10 cm}
+        \begin{onecolentry}
+            \begin{highlights}
+                \item Developed an AI-powered language learning platform with personalized learning paths and real-time progress tracking.
+                \item Implemented advanced speech recognition for pronunciation practice and instant feedback.
+                \item Built a gamified learning system with achievements and leaderboards to increase user engagement.
+                \item Integrated OpenAI's GPT for generating contextual practice exercises and personalized feedback.
+                \item \textbf{GitHub:} \href{https://github.com/harshmanek/PrepLingo}{PrepLingo}
+            \end{highlights}
+        \end{onecolentry}
+
+        \begin{twocolentry}{
+        \textit{Nadiad, IN}    
+            
+        \textit{Dec 2024 – March 2025}}
+            \textbf{GoldMovies}
+            
+            \textit{React, Spring Boot, MongoDB}
+        \end{twocolentry}
+        \vspace{0.10 cm}
+        \begin{onecolentry}
+            \begin{highlights}
+                \item Developed a full-stack movie streaming platform with secure user authentication and role-based access control.
+                \item Implemented RESTful APIs using Spring Boot with MongoDB integration for efficient data management.
+                \item Built responsive UI with React, enabling seamless movie browsing, trailer streaming, and review system.
+            \end{highlights}
+        \end{onecolentry}
+
+   \begin{twocolentry}{
+    \textit{Nadiad, IN}    
+        
+    \textit{June 2025 – Ongoing}}
+    \textbf{KhojIndia – A Cultural Experience Booking Platform}
+    
+    \textit{React, Node.js, Express.js, TypeScript, NeonDB (PostgreSQL)}
+\end{twocolentry}
+\vspace{0.10 cm}
+\begin{onecolentry}
+    \begin{highlights}
+        \item Building a full-stack travel experience marketplace focused on authentic cultural tourism in India.
+        \item Implemented secure JWT authentication and role-based access control (Traveler, Host, Admin).
+        \item Developed RESTful booking system with Prisma ORM integration to NeonDB (cloud PostgreSQL).
+        \item \textbf{GitHub:} \href{https://github.com/harshmanek/KhojIndia}{KhojIndia}
+    \end{highlights}
+\end{onecolentry}
+
+    \vspace{0.1 cm}
+    \section{Technologies}
+
+        \begin{onecolentry}
+            \textbf{Programming Languages:} Java, TypeScript, Python, JavaScript 
+        \end{onecolentry}
+
+        \vspace{0.1 cm}
+
+        \begin{onecolentry}
+            \textbf{Web Development:} React, Spring Boot, Node.js, Express.js
+        \end{onecolentry}
+        \vspace{0.1 cm}
+        \begin{onecolentry}
+            \textbf{Cloud \& Databases:} AWS (certified cloud foundations), MongoDB, PostgreSQL
+        \end{onecolentry}
+        \vspace{0.1 cm}
+    
+    \section*{Extracurricular Activities}
+\textbf{Senior Video Editing Associate} – Sports Club, DDU \hfill \textit{Oct 2024 – Present}  
+\begin{itemize}
+    \item Edited promotional sports videos, increasing event engagement by 30\%.
+\end{itemize}
+
+\textbf{Video Editing Volunteer} – BAPS Swaminarayan Chatralay \hfill \textit{Apr 2023}  
+\begin{itemize}
+    \item Produced high-quality videos for religious and cultural events (4000+ participants).
+\end{itemize}
+\end{document}

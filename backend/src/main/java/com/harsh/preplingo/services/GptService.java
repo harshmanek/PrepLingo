@@ -1,7 +1,9 @@
 package com.harsh.preplingo.services;
 
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import okhttp3.*;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
@@ -13,12 +15,15 @@ import java.util.concurrent.TimeUnit;
 
 @Service
 public class GptService {
-    private static final String Ollama_URL = "http://localhost:11434/api/generate";
-    private static final String MODEL_NAME = "mistral";
+    private static final String URL = "https://api.groq.com/openai/v1/chat/completions";
+    private static final String MODEL_NAME = "llama3-8b-8192";
     private final OkHttpClient client;
+    @Value("${GROQ_API_KEY}")
+    private String GROQ_API_KEY;
 
     public GptService() {
-        this.client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).readTimeout(120, TimeUnit.SECONDS).writeTimeout(60, TimeUnit.SECONDS).build();
+        this.client = new OkHttpClient.Builder().connectTimeout(60, TimeUnit.SECONDS).readTimeout(120, TimeUnit.SECONDS)
+                .writeTimeout(60, TimeUnit.SECONDS).build();
     }
 
     @Async
@@ -33,21 +38,64 @@ public class GptService {
 
     }
 
-
     public Map<String, Object> generateQuestion(String topic) throws IOException {
-        String prompt = "You are an expert instructor. Generate ONE multiple-choice question (MCQ) for " + topic + ".\n" + "\n" + "IMPORTANT: Follow this EXACT format for options and answers:\n" + "- Options MUST be labeled as A, B, C, D only\n" + "- Answer MUST start with the letter (A, B, C, or D) followed by the option text\n" + "- All JSON keys must match exactly as shown in example\n" + "\n" + "Example format:\n" + "[\n" + "  {\n" + "    \"question\": \"What is the capital of France?\",\n" + "    \"options\": {\n" + "      \"A\": \"London\",\n" + "      \"B\": \"Paris\",\n" + "      \"C\": \"Berlin\",\n" + "      \"D\": \"Madrid\"\n" + "    },\n" + "    \"answer\": \"B) Paris\",\n" + "    \"explanation\": \"Paris is the capital and largest city of France.\"\n" + "  }\n" + "]\n" + "\n" + "Requirements:\n" + "- Generate ONE " + topic + " question\n" + "- Question must be college-level\n" + "- Include only one correct answer\n" + "- Keep explanation concise (1-2 sentences)\n" + "- Focus on core concepts\n" + "- Use current standards and practices\n" + "\n" + "CRITICAL: Output must be a valid JSON array following the exact format shown above.";
+        // System.out.println("Generating question for topic: " + topic);
+        String prompt = "You are an expert instructor. Generate ONE multiple-choice question (MCQ) for "
+                + topic
+                + ".\n"
+                + "\n"
+                + "IMPORTANT: Follow this EXACT format for options and answers:\n"
+                + "- Options MUST be labeled as A, B, C, D only\n"
+                + "- Answer MUST start with the letter (A, B, C, or D) followed by the option text\n"
+                + "- All JSON keys must match exactly as shown in example\n"
+                + "\n" + "Example format:\n"
+                + "[\n"
+                + "  {\n"
+                + "    \"question\": \"What is the capital of France?\",\n"
+                + "    \"options\": {\n"
+                + "      \"A\": \"London\",\n"
+                + "      \"B\": \"Paris\",\n"
+                + "      \"C\": \"Berlin\",\n"
+                + "      \"D\": \"Madrid\"\n"
+                + "    },\n"
+                + "    \"answer\": \"B) Paris\",\n"
+                + "    \"explanation\": \"Paris is the capital and largest city of France.\"\n"
+                + "  }\n"
+                + "]\n"
+                + "\n"
+                + "Requirements:\n"
+                + "- Generate ONE "
+                + topic +
+                " question\n"
+                + "- Question must be college-level\n"
+                + "- Include only one correct answer\n"
+                + "- Keep explanation concise (1-2 sentences)\n"
+                + "- Focus on core concepts\n"
+                + "- Use current standards and practices\n"
+                + "\n"
+                + "CRITICAL: Output must be a valid JSON array following the exact format shown above.";
         MediaType mediaType = MediaType.parse("application/json");
-
         ObjectMapper mapper = new ObjectMapper();
+
         Map<String, Object> jsonMap = new HashMap<>();
+        List<Map<String, String>> messages = new ArrayList<>();
+        Map<String, String> message = new HashMap<>();
+        message.put("role", "user");
+        message.put("content", prompt);
+        messages.add(message);
         jsonMap.put("model", MODEL_NAME);
-        jsonMap.put("prompt", prompt);
-        jsonMap.put("stream", false);
+        jsonMap.put("messages", messages);
         jsonMap.put("temperature", 0.7);
         jsonMap.put("max_tokens", 300);
+        jsonMap.put("stream", false);
         String bodyJson = mapper.writeValueAsString(jsonMap);
 
-        Request request = new Request.Builder().url(Ollama_URL).post(RequestBody.create(mediaType, bodyJson)).addHeader("Content-Type", "application/json").build();
+        Request request = new Request.Builder().url(URL)
+                .post(RequestBody
+                        .create(mediaType, bodyJson))
+                .addHeader("Content-Type", "application/json")
+                .addHeader("Authorization", "Bearer " + GROQ_API_KEY)
+                .build();
 
         try (Response response = client.newCall(request).execute()) {
             if (!response.isSuccessful()) {
@@ -55,8 +103,21 @@ public class GptService {
             }
 
             String jsonResponse = Objects.requireNonNull(response.body()).string();
+            System.out.println("Raw API Response: " + jsonResponse);
             Map<String, Object> fullResponse = mapper.readValue(jsonResponse, Map.class);
-            String fullText = (String) fullResponse.get("response");
+            List<Map<String, Object>> choices = (List<Map<String, Object>>) fullResponse.get("choices");
+            if (choices == null || choices.isEmpty()) {
+                throw new IOException("No choices found in the API response.");
+            }
+            Map<String, Object> firstChoice = choices.get(0);
+            Map<String, String> messageMap = (Map<String, String>) firstChoice.get("message");
+            if (messageMap == null) {
+                throw new IOException("No message found in the first choice.");
+            }
+            String fullText = messageMap.get("content");
+            if (fullText == null) {
+                throw new IOException("Content is null in the message.");
+            }
 
             // Parse response
             return extractQA(fullText);
@@ -68,8 +129,13 @@ public class GptService {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
+            // Check if the response is a valid JSON array
+            if (!text.trim().startsWith("[") || !text.trim().endsWith("]")) {
+                text = "[" + text + "]";
+            }
+
             // Attempt to parse the response as JSON
-            List<Map<String, Object>> questions = mapper.readValue(text, List.class);
+            List<Map<String, Object>> questions = mapper.readValue(text, new TypeReference<List<Map<String, Object>>>() {});
 
             // Validate and sanitize each question
             for (Map<String, Object> question : questions) {
@@ -109,7 +175,8 @@ public class GptService {
         return result;
     }
 
-    public List<Map<String, Object>> generateMultipleQuestions(String topic, int count) throws InterruptedException, ExecutionException {
+    public List<Map<String, Object>> generateMultipleQuestions(String topic, int count)
+            throws InterruptedException, ExecutionException {
         List<Map<String, Object>> allQuestions = new ArrayList<>();
 
         for (int i = 0; i < count; i++) {
@@ -124,3 +191,22 @@ public class GptService {
         return allQuestions;
     }
 }
+
+// public List<Map<String,Object>> generateMultipleQuestions(String topic,int
+// count) throws InterruptedException, ExecutionException {
+// List<CompletableFuture<Map<String,Object>>> futures = new ArrayList<>();
+// for (int i = 0; i < count; i++) {
+// futures.add(generateQuestionAsync(topic));
+// }
+// CompletableFuture.allOf((futures.toArray(new CompletableFuture[0]))).join();
+//
+// List<Map<String,Object>> results = new ArrayList<>();
+// for (CompletableFuture<Map<String,Object>> future : futures) {
+// try {
+// results.add(future.get());
+// } catch (ExecutionException e) {
+// e.printStackTrace();
+// }
+// }
+// return results;
+// }
