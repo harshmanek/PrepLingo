@@ -73,7 +73,7 @@ public class GptService {
                 + "- Focus on core concepts\n"
                 + "- Use current standards and practices\n"
                 + "\n"
-                + "CRITICAL: Output must be a valid JSON array following the exact format shown above.";
+                + "CRITICAL: Output must be a valid JSON array following the exact format shown above. Respond ONLY with a valid JSON array as shown in the example. Do not include any introductory text, markdown, or explanation.";
         MediaType mediaType = MediaType.parse("application/json");
         ObjectMapper mapper = new ObjectMapper();
 
@@ -129,13 +129,21 @@ public class GptService {
         ObjectMapper mapper = new ObjectMapper();
 
         try {
-            // Check if the response is a valid JSON array
-            if (!text.trim().startsWith("[") || !text.trim().endsWith("]")) {
-                text = "[" + text + "]";
+            // santize the response received from groq. ignoring the natural language
+            // response received fromt the llm
+            int startIdx = text.indexOf('[');
+            int endIdx = text.lastIndexOf(']');
+            if (startIdx == -1 || endIdx == -1 || endIdx <= startIdx) {
+                throw new IllegalArgumentException("No JSON array found in response");
             }
+            // jsonArray containing the response in the format that we want for the
+            // questions.
+            String jsonArray = text.substring(startIdx, endIdx + 1);
 
             // Attempt to parse the response as JSON
-            List<Map<String, Object>> questions = mapper.readValue(text, new TypeReference<List<Map<String, Object>>>() {});
+            List<Map<String, Object>> questions = mapper.readValue(jsonArray,
+                    new TypeReference<List<Map<String, Object>>>() {
+                    });
 
             // Validate and sanitize each question
             for (Map<String, Object> question : questions) {
@@ -161,7 +169,8 @@ public class GptService {
                 String explanation = (String) question.get("explanation");
                 if (explanation != null) {
                     String[] sentences = explanation.split("\\.\\s+");
-                    String conciseExplanation = sentences.length > 2 ? sentences[0] + ". " + sentences[1] + "." : explanation;
+                    String conciseExplanation = sentences.length > 2 ? sentences[0] + ". " + sentences[1] + "."
+                            : explanation;
                     question.put("explanation", conciseExplanation.trim());
                 }
             }

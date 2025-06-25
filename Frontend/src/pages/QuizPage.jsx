@@ -1,56 +1,67 @@
-"use client"
+"use client";
 
-import { useState, useEffect, useContext } from "react"
-import { useParams, useNavigate, useLocation } from "react-router-dom"
-import { AuthContext } from "../contexts/AuthContext"
-import { ProgressContext } from "../contexts/ProgressContext"
-import Navbar from "../components/Navbar"
-import LoadingSpinner from "../components/LoadingSpinner"
-import { quizService, questionService } from "../services/api"
-import "./QuizPage.css"
+import { useState, useEffect, useContext } from "react";
+import { useParams, useNavigate, useLocation } from "react-router-dom";
+import { AuthContext } from "../contexts/AuthContext";
+import { ProgressContext } from "../contexts/ProgressContext";
+import Navbar from "../components/Navbar";
+import LoadingSpinner from "../components/LoadingSpinner";
+import { quizService, questionService } from "../services/api";
+import "./QuizPage.css";
 
 const QuizPage = () => {
-  const { quizId } = useParams()
-  const location = useLocation()
-  const { currentUser, fetchStreakInfo, streakInfo } = useContext(AuthContext)
-  const { completeQuiz } = useContext(ProgressContext)
-  const [quiz, setQuiz] = useState(null)
-  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
-  const [selectedAnswers, setSelectedAnswers] = useState({})
-  const [showResult, setShowResult] = useState(false)
-  const [result, setResult] = useState(null)
-  const [loading, setLoading] = useState(true)
-  const [timeLeft, setTimeLeft] = useState(null)
-  const [error, setError] = useState(null)
-  const [streakUpdated, setStreakUpdated] = useState(false)
-  const navigate = useNavigate()
+  const { quizId } = useParams();
+  const location = useLocation();
+  const { currentUser, fetchStreakInfo, streakInfo } = useContext(AuthContext);
+  const { completeQuiz } = useContext(ProgressContext);
+  const [quiz, setQuiz] = useState(null);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
+  const [selectedAnswers, setSelectedAnswers] = useState({});
+  const [showResult, setShowResult] = useState(false);
+  const [result, setResult] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState(null);
+  const [error, setError] = useState(null);
+  const [streakUpdated, setStreakUpdated] = useState(false);
+  const navigate = useNavigate();
 
   // Get question count from URL query parameters
   const getQuestionCount = () => {
-    const searchParams = new URLSearchParams(location.search)
-    const count = Number.parseInt(searchParams.get("count"))
-    return isNaN(count) ? 5 : count // Default to 5 if not specified
-  }
+    const searchParams = new URLSearchParams(location.search);
+    const count = Number.parseInt(searchParams.get("count"));
+    return isNaN(count) ? 5 : count; // Default to 5 if not specified
+  };
 
   useEffect(() => {
     const fetchQuiz = async () => {
       try {
         // Try to fetch the quiz by ID
-        let quizData
+        let quizData;
         try {
-          quizData = await quizService.createQuiz(getQuestionCount())
+          quizData = await quizService.getQuizById(quizId);
+          if (
+            !quizData ||
+            !quizData.questions ||
+            quizData.questions.length === 0
+          ) {
+            throw new Error("Quiz not found or has no questions");
+          }
         } catch (err) {
-          console.log("Quiz not found, creating mock quiz with random questions")
+          console.log(
+            "Quiz not found, creating mock quiz with random questions"
+          );
 
           // Get question count from URL or default to 5
-          const questionCount = getQuestionCount()
+          const questionCount = getQuestionCount();
 
-          const questions = await questionService.getRandomQuestions(questionCount)
+          const questions = await questionService.getRandomQuestions(
+            questionCount
+          );
 
           if (!questions || questions.length === 0) {
-            setError("No questions available. Please try again later.")
-            setLoading(false)
-            return
+            setError("No questions available. Please try again later.");
+            setLoading(false);
+            return;
           }
 
           quizData = {
@@ -59,80 +70,83 @@ const QuizPage = () => {
             timeLimit: questionCount * 60, // 1 minute per question
             totalQuestions: questions.length,
             status: "CREATED",
-          }
+          };
         }
 
-        setQuiz(quizData)
-        setTimeLeft(quizData.timeLimit || 300)
+        setQuiz(quizData);
+        setTimeLeft(quizData.timeLimit || 300);
       } catch (err) {
-        setError(err.response?.data || "Failed to load quiz")
+        setError(err.response?.data || "Failed to load quiz");
       } finally {
-        setLoading(false)
+        setLoading(false);
       }
-    }
+    };
 
-    fetchQuiz()
-  }, [quizId, location.search])
+    fetchQuiz();
+  }, [quizId, location.search]);
 
   useEffect(() => {
-    if (timeLeft === null || showResult) return
+    if (timeLeft === null || showResult) return;
 
     const timer = setInterval(() => {
       setTimeLeft((prev) => {
         if (prev <= 1) {
-          clearInterval(timer)
-          handleSubmitQuiz()
-          return 0
+          clearInterval(timer);
+          handleSubmitQuiz();
+          return 0;
         }
-        return prev - 1
-      })
-    }, 1000)
+        return prev - 1;
+      });
+    }, 1000);
 
-    return () => clearInterval(timer)
-  }, [timeLeft, showResult])
+    return () => clearInterval(timer);
+  }, [timeLeft, showResult]);
 
   const handleAnswerSelect = (questionId, option) => {
     setSelectedAnswers({
       ...selectedAnswers,
       [questionId]: option,
-    })
-  }
+    });
+  };
 
   const handleNextQuestion = () => {
     if (currentQuestionIndex < quiz.questions.length - 1) {
-      setCurrentQuestionIndex(currentQuestionIndex + 1)
+      setCurrentQuestionIndex(currentQuestionIndex + 1);
     } else {
-      handleSubmitQuiz()
+      handleSubmitQuiz();
     }
-  }
+  };
 
   const handlePreviousQuestion = () => {
     if (currentQuestionIndex > 0) {
-      setCurrentQuestionIndex(currentQuestionIndex - 1)
+      setCurrentQuestionIndex(currentQuestionIndex - 1);
     }
-  }
+  };
 
   const handleSubmitQuiz = async () => {
     try {
-      setLoading(true)
+      setLoading(true);
 
       // Submit answers to backend
-      const submitResult = await quizService.submitQuiz(quizId, selectedAnswers)
+      const submitResult = await quizService.submitQuiz(
+        quizId,
+        selectedAnswers
+      );
 
       // Calculate score
       const score =
         submitResult.score ||
         Object.keys(selectedAnswers).filter((questionId) => {
-          const question = quiz.questions.find((q) => q.id === questionId)
-          const correctAnswer = question?.answer.substring(0, 1)
-          return selectedAnswers[questionId] === correctAnswer
-        }).length
+          const question = quiz.questions.find((q) => q.id === questionId);
+          const correctAnswer = question?.answer.substring(0, 1);
+          return selectedAnswers[questionId] === correctAnswer;
+        }).length;
 
-      const totalQuestions = quiz.questions.length
-      const percentage = Math.round((score / totalQuestions) * 100)
+      const totalQuestions = quiz.questions.length;
+      const percentage = Math.round((score / totalQuestions) * 100);
 
       // Update streak info
-      const streakMaintained = percentage >= 50
+      const streakMaintained = percentage >= 50;
 
       setResult({
         score,
@@ -140,30 +154,30 @@ const QuizPage = () => {
         percentage,
         answers: selectedAnswers,
         streakMaintained,
-      })
+      });
 
       // Update progress and streak
-      await completeQuiz(quizId, score, totalQuestions)
+      await completeQuiz(quizId, score, totalQuestions);
 
       // Update streak info in context
-      await fetchStreakInfo()
-      setStreakUpdated(true)
+      await fetchStreakInfo();
+      setStreakUpdated(true);
 
       // Show results
-      setShowResult(true)
+      setShowResult(true);
     } catch (err) {
-      console.error("Error submitting quiz:", err)
-      setError(err.response?.data || "Failed to submit quiz")
+      console.error("Error submitting quiz:", err);
+      setError(err.response?.data || "Failed to submit quiz");
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
+  };
 
   const formatTime = (seconds) => {
-    const mins = Math.floor(seconds / 60)
-    const secs = seconds % 60
-    return `${mins}:${secs < 10 ? "0" : ""}${secs}`
-  }
+    const mins = Math.floor(seconds / 60);
+    const secs = seconds % 60;
+    return `${mins}:${secs < 10 ? "0" : ""}${secs}`;
+  };
 
   if (loading) {
     return (
@@ -174,7 +188,7 @@ const QuizPage = () => {
           <p>Loading quiz...</p>
         </div>
       </div>
-    )
+    );
   }
 
   if (error) {
@@ -184,12 +198,15 @@ const QuizPage = () => {
         <div className="error-state">
           <h2>Error</h2>
           <p>{error}</p>
-          <button className="primary-button" onClick={() => navigate("/dashboard")}>
+          <button
+            className="primary-button"
+            onClick={() => navigate("/dashboard")}
+          >
             Back to Dashboard
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   if (!quiz) {
@@ -199,12 +216,15 @@ const QuizPage = () => {
         <div className="error-state">
           <h2>Quiz not found</h2>
           <p>The quiz you're looking for doesn't exist or has been removed.</p>
-          <button className="primary-button" onClick={() => navigate("/dashboard")}>
+          <button
+            className="primary-button"
+            onClick={() => navigate("/dashboard")}
+          >
             Back to Dashboard
           </button>
         </div>
       </div>
-    )
+    );
   }
 
   if (showResult) {
@@ -220,18 +240,24 @@ const QuizPage = () => {
               <span className="score-value">{result.percentage}%</span>
             </div>
             <p className="score-text">
-              You answered <strong>{result.score}</strong> out of <strong>{result.totalQuestions}</strong> questions
-              correctly
+              You answered <strong>{result.score}</strong> out of{" "}
+              <strong>{result.totalQuestions}</strong> questions correctly
             </p>
             <div className="streak-update">
               {result.percentage >= 50 ? (
                 <div className="streak-maintained">
-                  <span className="streak-icon">🔥</span> Your streak has been maintained!
-                  {streakUpdated && <p className="streak-count">Current streak: {streakInfo?.streakCount || 0} days</p>}
+                  <span className="streak-icon">🔥</span> Your streak has been
+                  maintained!
+                  {streakUpdated && (
+                    <p className="streak-count">
+                      Current streak: {streakInfo?.streakCount || 0} days
+                    </p>
+                  )}
                 </div>
               ) : (
                 <div className="streak-broken">
-                  <span className="streak-icon">❌</span> Your streak requires at least 50% to maintain
+                  <span className="streak-icon">❌</span> Your streak requires
+                  at least 50% to maintain
                 </div>
               )}
             </div>
@@ -242,15 +268,26 @@ const QuizPage = () => {
 
             {quiz.questions.map((question, index) => {
               // Extract just the letter from the correct answer (e.g., "B) It prevents further reassignment" -> "B")
-              const correctAnswer = question.answer.substring(0, 1)
-              const userAnswer = result.answers[question.id]
-              const isCorrect = userAnswer === correctAnswer
+              const correctAnswer = question.answer.substring(0, 1);
+              const userAnswer = result.answers[question.id];
+              const isCorrect = userAnswer === correctAnswer;
 
               return (
-                <div key={question.id} className={`result-question ${isCorrect ? "correct" : "incorrect"}`}>
+                <div
+                  key={question.id}
+                  className={`result-question ${
+                    isCorrect ? "correct" : "incorrect"
+                  }`}
+                >
                   <div className="question-header">
-                    <span className="question-number">Question {index + 1}</span>
-                    <span className={`question-status ${isCorrect ? "correct" : "incorrect"}`}>
+                    <span className="question-number">
+                      Question {index + 1}
+                    </span>
+                    <span
+                      className={`question-status ${
+                        isCorrect ? "correct" : "incorrect"
+                      }`}
+                    >
                       {isCorrect ? "Correct" : "Incorrect"}
                     </span>
                   </div>
@@ -265,8 +302,8 @@ const QuizPage = () => {
                           key === correctAnswer
                             ? "correct"
                             : userAnswer === key && userAnswer !== correctAnswer
-                              ? "incorrect"
-                              : ""
+                            ? "incorrect"
+                            : ""
                         }`}
                       >
                         <span className="option-key">{key}</span>
@@ -277,30 +314,37 @@ const QuizPage = () => {
 
                   <div className="question-explanation">
                     <p>
-                      <strong>Explanation:</strong> {question.explanation || "No explanation provided."}
+                      <strong>Explanation:</strong>{" "}
+                      {question.explanation || "No explanation provided."}
                     </p>
                   </div>
                 </div>
-              )
+              );
             })}
           </div>
 
           <div className="result-actions">
-            <button className="secondary-button" onClick={() => navigate("/dashboard")}>
+            <button
+              className="secondary-button"
+              onClick={() => navigate("/dashboard")}
+            >
               Back to Dashboard
             </button>
-            <button className="primary-button" onClick={() => navigate("/dashboard/quiz/create")}>
+            <button
+              className="primary-button"
+              onClick={() => navigate("/dashboard/quiz/create")}
+            >
               Take Another Quiz
             </button>
           </div>
         </div>
       </div>
-    )
+    );
   }
 
-  const currentQuestion = quiz.questions[currentQuestionIndex]
-  const isLastQuestion = currentQuestionIndex === quiz.questions.length - 1
-  const hasAnswered = selectedAnswers[currentQuestion.id] !== undefined
+  const currentQuestion = quiz.questions[currentQuestionIndex];
+  const isLastQuestion = currentQuestionIndex === quiz.questions.length - 1;
+  const hasAnswered = selectedAnswers[currentQuestion.id] !== undefined;
 
   return (
     <div className="quiz-container">
@@ -315,7 +359,11 @@ const QuizPage = () => {
           <div className="progress-bar">
             <div
               className="progress-fill"
-              style={{ width: `${((currentQuestionIndex + 1) / quiz.questions.length) * 100}%` }}
+              style={{
+                width: `${
+                  ((currentQuestionIndex + 1) / quiz.questions.length) * 100
+                }%`,
+              }}
             ></div>
           </div>
         </div>
@@ -333,7 +381,9 @@ const QuizPage = () => {
             {Object.entries(currentQuestion.options).map(([key, value]) => (
               <div
                 key={key}
-                className={`option ${selectedAnswers[currentQuestion.id] === key ? "selected" : ""}`}
+                className={`option ${
+                  selectedAnswers[currentQuestion.id] === key ? "selected" : ""
+                }`}
                 onClick={() => handleAnswerSelect(currentQuestion.id, key)}
               >
                 <span className="option-key">{key}</span>
@@ -344,7 +394,11 @@ const QuizPage = () => {
         </div>
 
         <div className="quiz-navigation">
-          <button className="secondary-button" onClick={handlePreviousQuestion} disabled={currentQuestionIndex === 0}>
+          <button
+            className="secondary-button"
+            onClick={handlePreviousQuestion}
+            disabled={currentQuestionIndex === 0}
+          >
             Previous
           </button>
 
@@ -356,8 +410,8 @@ const QuizPage = () => {
                   index === currentQuestionIndex
                     ? "current"
                     : selectedAnswers[quiz.questions[index].id] !== undefined
-                      ? "answered"
-                      : ""
+                    ? "answered"
+                    : ""
                 }`}
                 onClick={() => setCurrentQuestionIndex(index)}
               ></div>
@@ -374,7 +428,7 @@ const QuizPage = () => {
         </div>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default QuizPage
+export default QuizPage;

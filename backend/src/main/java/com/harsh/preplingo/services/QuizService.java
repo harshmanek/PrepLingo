@@ -1,19 +1,27 @@
 package com.harsh.preplingo.services;
 
-import com.harsh.preplingo.models.*;
-import com.harsh.preplingo.repository.QuizAttemptRepository;
-import com.harsh.preplingo.repository.QuizRepository;
-import com.harsh.preplingo.repository.UserRepository;
-import com.harsh.preplingo.repository.UserStreakRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.apache.commons.lang3.time.DateUtils;
 import java.nio.file.AccessDeniedException;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+
+import org.apache.commons.lang3.time.DateUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.harsh.preplingo.models.Question;
+import com.harsh.preplingo.models.QuestionFeedback;
+import com.harsh.preplingo.models.Quiz;
+import com.harsh.preplingo.models.QuizAttempt;
+import com.harsh.preplingo.models.QuizSubmissionResponse;
+import com.harsh.preplingo.models.User;
+import com.harsh.preplingo.models.UserStreak;
+import com.harsh.preplingo.repository.QuizAttemptRepository;
+import com.harsh.preplingo.repository.QuizRepository;
+import com.harsh.preplingo.repository.UserRepository;
+import com.harsh.preplingo.repository.UserStreakRepository;
 
 @Service
 public class QuizService {
@@ -45,6 +53,7 @@ public class QuizService {
 
     public QuizSubmissionResponse submitQuiz(String username, String quizId, Map<String, String> answers)
             throws AccessDeniedException {
+        System.out.println(answers);
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
 
@@ -121,8 +130,7 @@ public class QuizService {
                             userAnswer,
                             q.getAnswer(),
                             q.getExplanation(),
-                            isCorrect
-                    );
+                            isCorrect);
                 })
                 .collect(Collectors.toList());
     }
@@ -136,6 +144,7 @@ public class QuizService {
         cal1.add(Calendar.DAY_OF_YEAR, 1);
         return isSameDay(cal1, cal2);
     }
+
     private void saveQuizAttempt(Quiz quiz, User user, Map<String, String> answers, int score) {
         QuizAttempt attempt = new QuizAttempt();
         attempt.setUserId(user.getId());
@@ -153,9 +162,21 @@ public class QuizService {
         user.getQuizAttempts().add(savedAttempt.getId());
         userRepository.save(user);
     }
+
     public List<QuizAttempt> getQuizHistory(String username) throws AccessDeniedException {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new AccessDeniedException("User not found"));
         return quizAttemptRepository.findByUserId(user.getId());
+    }
+
+    public Quiz getQuizById(String username, String quizId) throws AccessDeniedException {
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new AccessDeniedException("User not found"));
+        Quiz quiz = quizRepository.findById(quizId)
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+        if (!quiz.getUserId().equals(user.getId())) {
+            throw new AccessDeniedException("This quiz belongs to another user");
+        }
+        return quiz;
     }
 }
